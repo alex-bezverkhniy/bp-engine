@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -11,17 +10,14 @@ import (
 type (
 	ProcessRepository interface {
 		Create(ctx context.Context, process *Process) (string, error)
-		GetByUUID(ctx context.Context, uuid string) (*Process, error)
+		GetByUUID(ctx context.Context, code string, uuid string) (*Process, error)
 		GetByCode(ctx context.Context, code string) ([]Process, error)
-		SetStatus(ctx context.Context, uuid string, status string) error
+		SetStatus(ctx context.Context, code string, uuid string, status string) error
 	}
 	ProcessRepo struct {
 		db *gorm.DB
 	}
 )
-
-var ErrNoRecordsFound error = errors.New("no records found")
-var ErrRecordNotFound error = errors.New("record not found")
 
 func NewProcessRepository(db *gorm.DB) ProcessRepository {
 	return &ProcessRepo{
@@ -42,7 +38,7 @@ func (r *ProcessRepo) Create(ctx context.Context, process *Process) (string, err
 	return process.UUID, nil
 }
 
-func (r *ProcessRepo) GetByUUID(ctx context.Context, uuid string) (*Process, error) {
+func (r *ProcessRepo) GetByUUID(ctx context.Context, code string, uuid string) (*Process, error) {
 	var process Process
 	err := r.db.WithContext(ctx).
 		Model(&Process{}).
@@ -52,17 +48,10 @@ func (r *ProcessRepo) GetByUUID(ctx context.Context, uuid string) (*Process, err
 		Preload("Statuses", func(db *gorm.DB) *gorm.DB {
 			return db.Order("created_at DESC")
 		}).
-		Where("uuid = ?", uuid).
+		Where("code = ? AND uuid = ?", code, uuid).
 		First(&process).Error
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrRecordNotFound
-		}
 
-		return nil, err
-	}
-
-	return &process, nil
+	return &process, err
 }
 
 func (r *ProcessRepo) GetByCode(ctx context.Context, code string) ([]Process, error) {
@@ -76,15 +65,15 @@ func (r *ProcessRepo) GetByCode(ctx context.Context, code string) ([]Process, er
 	}
 
 	if len(processes) == 0 {
-		return nil, ErrNoRecordsFound
+		return nil, ErrNoProcessesFound
 	}
 
 	return processes, nil
 
 }
 
-func (r *ProcessRepo) SetStatus(ctx context.Context, uuid string, status string) error {
-	process, err := r.GetByUUID(ctx, uuid)
+func (r *ProcessRepo) SetStatus(ctx context.Context, code string, uuid string, status string) error {
+	process, err := r.GetByUUID(ctx, code, uuid)
 	if err != nil {
 		return err
 	}

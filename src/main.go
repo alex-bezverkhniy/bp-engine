@@ -31,6 +31,7 @@ func main() {
 	app.Use(fiberlogger.New())
 
 	processRepository := NewProcessRepository(db)
+	processService := NewProcessService(processRepository)
 
 	app.Get("/v1/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
@@ -39,7 +40,7 @@ func main() {
 	})
 
 	app.Post("/v1/process", func(c *fiber.Ctx) error {
-		var process Process
+		var process ProcessDTO
 		err := c.BodyParser(&process)
 		if err != nil {
 			log.Error("cannot read request body ", err)
@@ -50,8 +51,8 @@ func main() {
 			})
 		}
 
-		log.Info("create new process: ", process)
-		uuid, err := processRepository.Create(c.Context(), &process)
+		log.Infof("create new process: %v", process)
+		uuid, err := processService.Submit(c.Context(), &process)
 
 		if err != nil {
 			log.Error("cannot create new process ", err)
@@ -61,18 +62,19 @@ func main() {
 				"message": "cannot create new process",
 			})
 		}
-		process.UUID = uuid
-		return c.Status(fiber.StatusOK).JSON(process)
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"uuid": uuid,
+		})
 	})
 
 	app.Get("/v1/process/:code/list", func(c *fiber.Ctx) error {
 		code := c.Params("code")
 		log.Info("get lits of process by code: ", code)
-		processesList, err := processRepository.GetByCode(c.Context(), code)
+		processesList, err := processService.Get(c.Context(), code, "")
 
 		if err != nil {
 			log.Error("cannot get processes list by code ", err)
-			if errors.Is(err, ErrNoRecordsFound) {
+			if errors.Is(err, ErrNoProcessesFound) {
 				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 
 					"status":  "error",
@@ -90,14 +92,15 @@ func main() {
 		return c.Status(fiber.StatusOK).JSON(processesList)
 	})
 
-	app.Get("/v1/process/:uuid", func(c *fiber.Ctx) error {
+	app.Get("/v1/process/:code/:uuid", func(c *fiber.Ctx) error {
 		uuid := c.Params("uuid")
-		log.Info("get process by UUID: ", uuid)
-		process, err := processRepository.GetByUUID(c.Context(), uuid)
+		code := c.Params("code")
+		log.Infof("get process by code: %s and UUID: %s", code, uuid)
+		process, err := processService.Get(c.Context(), code, uuid)
 
 		if err != nil {
 			log.Error("cannot get process by UUID ", err)
-			if errors.Is(err, ErrNoRecordsFound) {
+			if errors.Is(err, ErrNoProcessesFound) {
 				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 
 					"status":  "error",
@@ -121,10 +124,10 @@ func main() {
 		log.Info("get process by uuid: ", uuid)
 		log.Info("move it to: ", status)
 
-		err := processRepository.SetStatus(c.Context(), uuid, status)
+		err := processService.AssignStatus(c.Context(), uuid, status)
 		if err != nil {
 			log.Error("cannot move into new status ", err)
-			if errors.Is(err, ErrRecordNotFound) {
+			if errors.Is(err, ErrProcessNotFound) {
 				return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 
 					"status":  "error",

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
@@ -8,17 +10,58 @@ import (
 type (
 	Process struct {
 		gorm.Model
-		UUID          string         `json: "uuid"`
-		Code          string         `json: "code"`
-		Metadata      datatypes.JSON `json: "metadata"`
+		UUID          string
+		Code          string
+		Metadata      datatypes.JSON
 		CurrentStatus ProcessStatus
-		Statuses      []ProcessStatus `json: "statuses"`
+		Statuses      ProcessStatusList
 	}
+
+	ProcessStatusList []ProcessStatus
 
 	ProcessStatus struct {
 		gorm.Model
 		ProcessID uint
-		Name      string         `json: "name"`
-		Metadata  datatypes.JSON `json: "metadata"`
+		Name      string
+		Metadata  datatypes.JSON
 	}
 )
+
+func (p *Process) toDTO() ProcessDTO {
+	var status *ProcessStatusDTO
+	if len(p.CurrentStatus.Name) > 0 {
+		status = p.CurrentStatus.toDTO()
+	}
+	return ProcessDTO{
+		UUID:          p.UUID,
+		Code:          p.Code,
+		Metadata:      toMetadataDTO(p.Metadata),
+		CurrentStatus: status,
+		Statuses:      p.Statuses.toDTO(),
+	}
+}
+
+func (p *ProcessStatus) toDTO() *ProcessStatusDTO {
+	return &ProcessStatusDTO{
+		Name:     p.Name,
+		Metadata: toMetadataDTO(p.Metadata),
+	}
+}
+
+func (pp ProcessStatusList) toDTO() ProcessStatusListDTO {
+	res := ProcessStatusListDTO{}
+	for _, p := range pp {
+		res = append(res, *p.toDTO())
+	}
+
+	return res
+}
+
+func toMetadataDTO(d datatypes.JSON) Metadata {
+	val := d.String()
+	var metadata Metadata
+	if len(val) > 0 {
+		json.Unmarshal([]byte(val), &metadata)
+	}
+	return metadata
+}
