@@ -1,3 +1,4 @@
 .vscode
 *.db
 bp-engine
+__debug_bin
