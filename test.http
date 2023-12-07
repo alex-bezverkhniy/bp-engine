@@ -5,13 +5,15 @@ Content-Type: application/json
 
 {
     "code": "requests",
-    "metadata": "sample requests"
+    "metadata": {
+        "sample": "metadata"
+    }
 }
 
 
 ### Get process by UUID
  
-GET http://localhost:3000/v1/process/13bedf9b-a9f1-474c-a50d-b0ade699d326
+GET http://localhost:3000/v1/process/cb0d4e48-7617-42ce-97e4-a9ee31735c99
 
 ### Get processes by code
 

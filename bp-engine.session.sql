@@ -1,5 +1,7 @@
 
-SELECT * FROM `processes` WHERE uuid = "23c968a6-5fc5-4e42-8f59-a7f9c0d4892c" AND `processes`.`deleted_at` IS NULL ORDER BY `processes`.`id` LIMIT 1
+SELECT * FROM `processes` 
+
+-- SELECT * FROM `processes` WHERE uuid = "23c968a6-5fc5-4e42-8f59-a7f9c0d4892c" AND `processes`.`deleted_at` IS NULL ORDER BY `processes`.`id` LIMIT 1
 
 -- update processes set uuid = '23c968a6-5fc5-4e42-8f59-a7f9c0d4892c' where id = 1;
 -- update processes set uuid = '06d96f67-b545-4215-b228-6639f080a86c' where id = 2;

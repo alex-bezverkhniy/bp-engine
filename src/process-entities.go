@@ -1,15 +1,16 @@
 package main
 
 import (
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
 type (
 	Process struct {
 		gorm.Model
-		UUID          string `json: "uuid"`
-		Code          string `json: "code"`
-		Metadata      string `json: "metadata"`
+		UUID          string         `json: "uuid"`
+		Code          string         `json: "code"`
+		Metadata      datatypes.JSON `json: "metadata"`
 		CurrentStatus ProcessStatus
 		Statuses      []ProcessStatus `json: "statuses"`
 	}
@@ -17,6 +18,7 @@ type (
 	ProcessStatus struct {
 		gorm.Model
 		ProcessID uint
-		Name      string `json: "name"`
+		Name      string         `json: "name"`
+		Metadata  datatypes.JSON `json: "metadata"`
 	}
 )
