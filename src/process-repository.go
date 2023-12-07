@@ -46,7 +46,9 @@ func (r *ProcessRepo) GetByUUID(ctx context.Context, uuid string) (*Process, err
 	var process Process
 	err := r.db.WithContext(ctx).
 		Model(&Process{}).
-		// Preload("Statuses").
+		Preload("CurrentStatus", func(db *gorm.DB) *gorm.DB {
+			return db.Order("created_at ASC")
+		}).
 		Preload("Statuses", func(db *gorm.DB) *gorm.DB {
 			return db.Order("created_at DESC")
 		}).

@@ -10,7 +10,7 @@ Content-Type: application/json
 
 
 ### Get process by UUID
-
+ 
 GET http://localhost:3000/v1/process/13bedf9b-a9f1-474c-a50d-b0ade699d326
 
 ### Get processes by code
