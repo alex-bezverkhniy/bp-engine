@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"time"
 
 	"gorm.io/datatypes"
 )
@@ -13,6 +14,8 @@ type (
 		Metadata      Metadata             `json:"metadata,omitempty"`
 		CurrentStatus *ProcessStatusDTO    `json:"current_status,omitempty"`
 		Statuses      ProcessStatusListDTO `json:"statuses,omitempty"`
+		CreatedAt     time.Time            `json:"created_at"`
+		ChangedAt     time.Time            `json:"changed_at"`
 	}
 
 	ProcessStatusListDTO []ProcessStatusDTO
@@ -20,8 +23,9 @@ type (
 	Metadata map[string]interface{}
 
 	ProcessStatusDTO struct {
-		Name     string   `json: "name"`
-		Metadata Metadata `json: "metadata"`
+		Name      string    `json:"name,omitempty"`
+		Metadata  Metadata  `json:"metadata,omitempty"`
+		CreatedAt time.Time `json:"created_at"`
 	}
 )
 

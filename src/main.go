@@ -118,13 +118,14 @@ func main() {
 		return c.Status(fiber.StatusOK).JSON(process)
 	})
 
-	app.Patch("/v1/process/:uuid/into/:status", func(c *fiber.Ctx) error {
+	app.Patch("/v1/process/:code/:uuid/into/:status", func(c *fiber.Ctx) error {
+		code := c.Params("code")
 		uuid := c.Params("uuid")
 		status := c.Params("status")
 		log.Info("get process by uuid: ", uuid)
 		log.Info("move it to: ", status)
 
-		err := processService.AssignStatus(c.Context(), uuid, status)
+		err := processService.AssignStatus(c.Context(), code, uuid, status)
 		if err != nil {
 			log.Error("cannot move into new status ", err)
 			if errors.Is(err, ErrProcessNotFound) {

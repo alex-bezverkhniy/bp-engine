@@ -38,13 +38,16 @@ func (p *Process) toDTO() ProcessDTO {
 		Metadata:      toMetadataDTO(p.Metadata),
 		CurrentStatus: status,
 		Statuses:      p.Statuses.toDTO(),
+		CreatedAt:     p.CreatedAt,
+		ChangedAt:     p.UpdatedAt,
 	}
 }
 
 func (p *ProcessStatus) toDTO() *ProcessStatusDTO {
 	return &ProcessStatusDTO{
-		Name:     p.Name,
-		Metadata: toMetadataDTO(p.Metadata),
+		Name:      p.Name,
+		Metadata:  toMetadataDTO(p.Metadata),
+		CreatedAt: p.CreatedAt,
 	}
 }
 

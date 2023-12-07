@@ -12,7 +12,7 @@ type (
 	ProcessService interface {
 		Submit(ctx context.Context, process *ProcessDTO) (string, error)
 		Get(ctx context.Context, code string, uuid string) ([]ProcessDTO, error)
-		AssignStatus(ctx context.Context, uuid string, status string) error
+		AssignStatus(ctx context.Context, code string, uuid string, status string) error
 	}
 	ProcessSrvc struct {
 		repo ProcessRepository
@@ -53,6 +53,14 @@ func (s *ProcessSrvc) Get(ctx context.Context, code string, uuid string) ([]Proc
 	return []ProcessDTO{process.toDTO()}, nil
 }
 
-func (s *ProcessSrvc) AssignStatus(ctx context.Context, uuid string, status string) error {
+func (s *ProcessSrvc) AssignStatus(ctx context.Context, code string, uuid string, status string) error {
+	err := s.repo.SetStatus(ctx, code, uuid, status)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrProcessNotFound
+		}
+		return err
+	}
+
 	return nil
 }

@@ -12,7 +12,7 @@ Content-Type: application/json
 
 
 ### Get process by UUID
- 
+
 GET http://localhost:3000/v1/process/requests/cc6e4410-6f2c-4024-8fa3-5795c3954b6b
 
 ### Get processes by code
@@ -27,7 +27,7 @@ GET http://localhost:3000/v1/process/void/list
 
 ### Move item of process into to status
 
-PATCH http://localhost:3000/v1/process/cc6e4410-6f2c-4024-8fa3-5795c3954b6b/into/open
+PATCH http://localhost:3000/v1/process/requests/cc6e4410-6f2c-4024-8fa3-5795c3954b6b/into/created
 
 
 ### Move item of process into to status
