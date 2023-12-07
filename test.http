@@ -1,0 +1,38 @@
+### Create new process
+
+POST http://localhost:3000/v1/process
+Content-Type: application/json
+
+{
+    "code": "requests",
+    "metadata": "sample requests"
+}
+
+
+### Get process by UUID
+
+GET http://localhost:3000/v1/process/13bedf9b-a9f1-474c-a50d-b0ade699d326
+
+### Get processes by code
+
+GET http://localhost:3000/v1/process/requests/list
+
+
+### Get processes by code - 404
+
+GET http://localhost:3000/v1/process/void/list
+
+
+### Move item of process into to status
+
+PATCH http://localhost:3000/v1/process/13bedf9b-a9f1-474c-a50d-b0ade699d326/into/open
+
+
+### Move item of process into to status
+
+PATCH http://localhost:3000/v1/process/13bedf9b-a9f1-474c-a50d-b0ade699d326/into/inprocess
+
+
+### Move item of process into to status - 404
+
+PATCH http://localhost:3000/v1/process/23c968a6-5fc5-void-8f59-a7f9c0d4892c/into/open
