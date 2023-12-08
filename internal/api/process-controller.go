@@ -107,10 +107,22 @@ func (pc *ProcessController) AssignStatus(c *fiber.Ctx) error {
 	code := c.Params("code")
 	uuid := c.Params("uuid")
 	status := c.Params("status")
+
+	var processStatus ProcessStatusDTO
+	err := c.BodyParser(&processStatus)
+	if err != nil {
+		log.Error("cannot read request body ", err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+
+			"status":  "error",
+			"message": "cannot read request body",
+		})
+	}
+
 	log.Info("get process by uuid: ", uuid)
 	log.Info("move it to: ", status)
 
-	err := pc.service.AssignStatus(c.Context(), code, uuid, status)
+	err = pc.service.AssignStatus(c.Context(), code, uuid, status, processStatus.Metadata)
 	if err != nil {
 		log.Error("cannot move into new status ", err)
 		if errors.Is(err, ErrProcessNotFound) {

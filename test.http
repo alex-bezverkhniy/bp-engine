@@ -28,7 +28,14 @@ GET http://localhost:3000/api/v1/process/requests/list
 ### Move item of process into to status
 
 PATCH http://localhost:3000/api/v1/process/requests/{{uuid}}/assign/created
+Content-Type: application/json
 
+{
+    "metadata": {
+        "sample": "metadata",
+        "moveit": "into created"
+    }
+}
 
 ### Move item of process into to status
 

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -12,7 +13,7 @@ type (
 		Create(ctx context.Context, process *Process) (string, error)
 		GetByUUID(ctx context.Context, code string, uuid string) (*Process, error)
 		GetByCode(ctx context.Context, code string) ([]Process, error)
-		SetStatus(ctx context.Context, code string, uuid string, status string) error
+		SetStatus(ctx context.Context, code string, uuid string, status string, metadata datatypes.JSON) error
 	}
 	ProcessRepo struct {
 		db *gorm.DB
@@ -72,7 +73,7 @@ func (r *ProcessRepo) GetByCode(ctx context.Context, code string) ([]Process, er
 
 }
 
-func (r *ProcessRepo) SetStatus(ctx context.Context, code string, uuid string, status string) error {
+func (r *ProcessRepo) SetStatus(ctx context.Context, code string, uuid string, status string, metadata datatypes.JSON) error {
 	process, err := r.GetByUUID(ctx, code, uuid)
 	if err != nil {
 		return err
@@ -81,6 +82,7 @@ func (r *ProcessRepo) SetStatus(ctx context.Context, code string, uuid string, s
 	newStatus := &ProcessStatus{
 		ProcessID: process.ID,
 		Name:      status,
+		Metadata:  metadata,
 	}
 
 	err = r.db.WithContext(ctx).Model(&ProcessStatus{}).Save(&newStatus).Error

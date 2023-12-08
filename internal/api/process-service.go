@@ -5,6 +5,7 @@ import (
 
 	"errors"
 
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -12,7 +13,7 @@ type (
 	ProcessService interface {
 		Submit(ctx context.Context, process *ProcessDTO) (string, error)
 		Get(ctx context.Context, code string, uuid string) ([]ProcessDTO, error)
-		AssignStatus(ctx context.Context, code string, uuid string, status string) error
+		AssignStatus(ctx context.Context, code string, uuid string, status string, metadata Metadata) error
 	}
 	ProcessSrvc struct {
 		repo ProcessRepository
@@ -64,8 +65,8 @@ func (s *ProcessSrvc) Get(ctx context.Context, code string, uuid string) ([]Proc
 	return processes.toDTO(), nil
 }
 
-func (s *ProcessSrvc) AssignStatus(ctx context.Context, code string, uuid string, status string) error {
-	err := s.repo.SetStatus(ctx, code, uuid, status)
+func (s *ProcessSrvc) AssignStatus(ctx context.Context, code string, uuid string, status string, metadata Metadata) error {
+	err := s.repo.SetStatus(ctx, code, uuid, status, datatypes.JSON(metadata.toBytes()))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ErrProcessNotFound
