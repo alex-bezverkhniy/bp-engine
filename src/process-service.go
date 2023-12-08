@@ -40,7 +40,18 @@ func (s *ProcessSrvc) Submit(ctx context.Context, process *ProcessDTO) (string, 
 }
 
 func (s *ProcessSrvc) Get(ctx context.Context, code string, uuid string) ([]ProcessDTO, error) {
-	process, err := s.repo.GetByUUID(ctx, code, uuid)
+	var processes ProcessList
+	var process *Process
+	var err error
+
+	if len(uuid) == 0 {
+		processes, err = s.repo.GetByCode(ctx, code)
+	} else {
+		process, err = s.repo.GetByUUID(ctx, code, uuid)
+		if err == nil {
+			processes = append(processes, *process)
+		}
+	}
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -50,7 +61,7 @@ func (s *ProcessSrvc) Get(ctx context.Context, code string, uuid string) ([]Proc
 		return nil, err
 	}
 
-	return []ProcessDTO{process.toDTO()}, nil
+	return processes.toDTO(), nil
 }
 
 func (s *ProcessSrvc) AssignStatus(ctx context.Context, code string, uuid string, status string) error {

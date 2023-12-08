@@ -8,6 +8,8 @@ import (
 )
 
 type (
+	ProcessList []Process
+
 	Process struct {
 		gorm.Model
 		UUID          string
@@ -57,6 +59,14 @@ func (pp ProcessStatusList) toDTO() ProcessStatusListDTO {
 		res = append(res, *p.toDTO())
 	}
 
+	return res
+}
+
+func (pl ProcessList) toDTO() ProcessListDTO {
+	res := ProcessListDTO{}
+	for _, p := range pl {
+		res = append(res, p.toDTO())
+	}
 	return res
 }
 

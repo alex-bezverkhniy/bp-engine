@@ -8,7 +8,8 @@ import (
 )
 
 type (
-	ProcessDTO struct {
+	ProcessListDTO []ProcessDTO
+	ProcessDTO     struct {
 		UUID          string               `json:"uuid"`
 		Code          string               `json:"code"`
 		Metadata      Metadata             `json:"metadata,omitempty"`
@@ -36,7 +37,7 @@ func (p *ProcessDTO) toEntity() *Process {
 	}
 
 	var curentStatus ProcessStatus
-	if len(p.CurrentStatus.Name) > 0 {
+	if p.CurrentStatus != nil {
 		curentStatus = p.CurrentStatus.toEntity()
 	}
 
