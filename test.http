@@ -1,5 +1,7 @@
-### Create new process
+@uuid = ""
 
+### Create new process
+# @name createProcess
 POST http://localhost:3000/api/v1/process
 Content-Type: application/json
 
@@ -10,10 +12,13 @@ Content-Type: application/json
     }
 }
 
+###
+@uuid = {{createProcess.response.body.uuid}}
 
-### Get process by UUID
 
-GET http://localhost:3000/api/v1/process/requests/5f303fd1-946d-427e-b359-fbb5fc75a639
+### Get p1rocess by UUID
+
+GET http://localhost:3000/api/v1/process/requests/{{uuid}}
 
 ### Get processes by code
 
@@ -22,14 +27,9 @@ GET http://localhost:3000/api/v1/process/requests/list
 
 ### Move item of process into to status
 
-PATCH http://localhost:3000/api/v1/process/requests/5f303fd1-946d-427e-b359-fbb5fc75a639/assign/created
+PATCH http://localhost:3000/api/v1/process/requests/{{uuid}}/assign/created
 
 
 ### Move item of process into to status
 
-PATCH http://localhost:3000/api/v1/process/13bedf9b-a9f1-474c-a50d-b0ade699d326/into/inprocess
-
-
-### Move item of process into to status - 404
-
-PATCH http://localhost:3000/api/v1/process/23c968a6-5fc5-void-8f59-a7f9c0d4892c/into/open
+PATCH http://localhost:3000/api/v1/process/requests/{{uuid}}/assign/inprocess
