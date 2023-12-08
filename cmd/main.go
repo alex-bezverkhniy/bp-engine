@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bp-engine/internal/api"
+
 	fiber "github.com/gofiber/fiber/v2"
 	log "github.com/gofiber/fiber/v2/log"
 	fiberlogger "github.com/gofiber/fiber/v2/middleware/logger"
@@ -16,15 +18,15 @@ func main() {
 		log.Fatal("cannot connect to db", err)
 	}
 
-	db.AutoMigrate(&Process{})
-	db.AutoMigrate(&ProcessStatus{})
+	db.AutoMigrate(&api.Process{})
+	db.AutoMigrate(&api.ProcessStatus{})
 
 	app := fiber.New()
 	app.Use(fiberlogger.New())
 
-	processRepository := NewProcessRepository(db)
-	processService := NewProcessService(processRepository)
-	processController := NewProcessController(processService)
+	processRepository := api.NewProcessRepository(db)
+	processService := api.NewProcessService(processRepository)
+	processController := api.NewProcessController(processService)
 
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
