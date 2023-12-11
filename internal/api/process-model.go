@@ -8,6 +8,15 @@ import (
 )
 
 type (
+	GraphNode struct {
+		Name         string
+		NextStatuses []GraphNode
+	}
+	ProcessModel struct {
+		Name       string
+		GraphModel GraphNode
+	}
+
 	ProcessListDTO []ProcessDTO
 	ProcessDTO     struct {
 		UUID          string               `json:"uuid"`
