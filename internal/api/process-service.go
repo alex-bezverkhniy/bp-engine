@@ -12,7 +12,7 @@ import (
 type (
 	ProcessService interface {
 		Submit(ctx context.Context, process *ProcessDTO) (string, error)
-		Get(ctx context.Context, code string, uuid string) ([]ProcessDTO, error)
+		Get(ctx context.Context, code string, uuid string, page int, pageSize int) ([]ProcessDTO, error)
 		AssignStatus(ctx context.Context, code string, uuid string, status string, metadata Metadata) error
 	}
 	ProcessSrvc struct {
@@ -40,13 +40,21 @@ func (s *ProcessSrvc) Submit(ctx context.Context, process *ProcessDTO) (string, 
 	return uuid, nil
 }
 
-func (s *ProcessSrvc) Get(ctx context.Context, code string, uuid string) ([]ProcessDTO, error) {
+func (s *ProcessSrvc) Get(ctx context.Context, code string, uuid string, page int, pageSize int) ([]ProcessDTO, error) {
 	var processes ProcessList
 	var process *Process
 	var err error
 
+	// Get by code
 	if len(uuid) == 0 {
-		processes, err = s.repo.GetByCode(ctx, code)
+		if page <= 0 {
+			page = DEFAULT_PAGE
+		}
+
+		if pageSize <= 0 {
+			pageSize = DEFAULT_PAGE_SIZE
+		}
+		processes, err = s.repo.GetByCode(ctx, code, page, pageSize)
 	} else {
 		process, err = s.repo.GetByUUID(ctx, code, uuid)
 		if err == nil {

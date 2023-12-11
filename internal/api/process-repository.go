@@ -8,11 +8,16 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	DEFAULT_PAGE_SIZE = 10
+	DEFAULT_PAGE      = 1
+)
+
 type (
 	ProcessRepository interface {
 		Create(ctx context.Context, process *Process) (string, error)
 		GetByUUID(ctx context.Context, code string, uuid string) (*Process, error)
-		GetByCode(ctx context.Context, code string) ([]Process, error)
+		GetByCode(ctx context.Context, code string, page int, pageSize int) ([]Process, error)
 		SetStatus(ctx context.Context, code string, uuid string, status string, metadata datatypes.JSON) error
 	}
 	ProcessRepo struct {
@@ -55,9 +60,13 @@ func (r *ProcessRepo) GetByUUID(ctx context.Context, code string, uuid string) (
 	return &process, err
 }
 
-func (r *ProcessRepo) GetByCode(ctx context.Context, code string) ([]Process, error) {
+func (r *ProcessRepo) GetByCode(ctx context.Context, code string, page int, pageSize int) ([]Process, error) {
+	offset := (page - 1) * pageSize
+
 	var processes []Process
 	err := r.db.WithContext(ctx).
+		Offset(offset).
+		Limit(pageSize).
 		Model(&Process{}).
 		Preload("Statuses").
 		Find(&processes, "code = ?", code).Error

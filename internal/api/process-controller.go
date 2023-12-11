@@ -2,14 +2,28 @@ package api
 
 import (
 	"errors"
+	"strconv"
 
 	fiber "github.com/gofiber/fiber/v2"
 	log "github.com/gofiber/fiber/v2/log"
 )
 
-type ProcessController struct {
-	service ProcessService
-}
+const (
+	HEADERNAME_PAGE_SIZE = "X-Page-Size"
+	HEADERNAME_PAGE      = "X-Page"
+)
+
+type (
+	PaginatedResponse struct {
+		Data     interface{} `json:"data"`
+		Page     int         `json:"page"`
+		PageSize int         `json:"page_size"`
+	}
+
+	ProcessController struct {
+		service ProcessService
+	}
+)
 
 func NewProcessController(service ProcessService) *ProcessController {
 	return &ProcessController{
@@ -54,8 +68,29 @@ func (pc *ProcessController) Submit(c *fiber.Ctx) error {
 
 func (pc *ProcessController) GetLists(c *fiber.Ctx) error {
 	code := c.Params("code")
+
+	var err error
+	var page int
+	var pageSize int
+
+	page, err = getHeaderValue[int](c, HEADERNAME_PAGE, DEFAULT_PAGE)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"status":  "error",
+			"message": "not supported value for " + HEADERNAME_PAGE,
+		})
+	}
+
+	pageSize, err = getHeaderValue[int](c, HEADERNAME_PAGE_SIZE, DEFAULT_PAGE_SIZE)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"status":  "error",
+			"message": "not supported value for " + HEADERNAME_PAGE_SIZE,
+		})
+	}
+
 	log.Info("get lits of process by code: ", code)
-	processesList, err := pc.service.Get(c.Context(), code, "")
+	processesList, err := pc.service.Get(c.Context(), code, "", page, pageSize)
 
 	if err != nil {
 		log.Error("cannot get processes list by code ", err)
@@ -74,14 +109,20 @@ func (pc *ProcessController) GetLists(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(processesList)
+	resp := PaginatedResponse{
+		Data:     processesList,
+		Page:     page,
+		PageSize: pageSize,
+	}
+
+	return c.Status(fiber.StatusOK).JSON(resp)
 }
 
 func (pc *ProcessController) Get(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 	code := c.Params("code")
 	log.Infof("get process by code: %s and UUID: %s", code, uuid)
-	process, err := pc.service.Get(c.Context(), code, uuid)
+	process, err := pc.service.Get(c.Context(), code, uuid, DEFAULT_PAGE, DEFAULT_PAGE_SIZE)
 
 	if err != nil {
 		log.Error("cannot get process by UUID ", err)
@@ -113,7 +154,6 @@ func (pc *ProcessController) AssignStatus(c *fiber.Ctx) error {
 	if err != nil {
 		log.Error("cannot read request body ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-
 			"status":  "error",
 			"message": "cannot read request body",
 		})
@@ -142,4 +182,26 @@ func (pc *ProcessController) AssignStatus(c *fiber.Ctx) error {
 	c.Status(fiber.StatusNoContent)
 	return nil
 
+}
+
+func getHeaderValue[T string | int | float64](c *fiber.Ctx, key string, defaultVal T) (T, error) {
+	headers := c.GetReqHeaders()
+	var err error
+	var val any
+	if headers != nil {
+		if len(headers[key]) > 0 {
+			strVal := headers[key][0]
+			var v any = new(T)
+			switch v.(type) {
+			case *int:
+				val, err = strconv.Atoi(strVal)
+			case *float64:
+				val, err = strconv.ParseFloat(strVal, 64)
+			default: //string
+				val = &strVal
+			}
+		}
+		return val.(T), err
+	}
+	return defaultVal, err
 }
