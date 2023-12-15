@@ -15,9 +15,9 @@ const (
 
 type (
 	PaginatedResponse struct {
-		Data     interface{} `json:"data"`
-		Page     int         `json:"page"`
-		PageSize int         `json:"page_size"`
+		Data     ProcessListDTO `json:"data"`
+		Page     int            `json:"page"`
+		PageSize int            `json:"page_size"`
 	}
 
 	ProcessController struct {
@@ -26,7 +26,7 @@ type (
 )
 
 var (
-	NoProcessFoundResp = ProcessErrorResponse{
+	ProcessNotFoundResp = ProcessErrorResponse{
 		Status:  "error",
 		Message: "process not found",
 	}
@@ -34,6 +34,11 @@ var (
 	CannotGetProcessResp = ProcessErrorResponse{
 		Status:  "error",
 		Message: "cannot get process by UUID",
+	}
+
+	CannotGetListProcessResp = ProcessErrorResponse{
+		Status:  "error",
+		Message: "cannot get processes list by code",
 	}
 )
 
@@ -110,6 +115,9 @@ func (pc *ProcessController) GetLists(c *fiber.Ctx) error {
 			"message": "not supported value for " + HEADERNAME_PAGE,
 		})
 	}
+	if page == 0 {
+		page = DEFAULT_PAGE
+	}
 
 	pageSize, err = getHeaderValue[int](c, HEADERNAME_PAGE_SIZE, DEFAULT_PAGE_SIZE)
 	if err != nil {
@@ -118,6 +126,9 @@ func (pc *ProcessController) GetLists(c *fiber.Ctx) error {
 			"message": "not supported value for " + HEADERNAME_PAGE_SIZE,
 		})
 	}
+	if pageSize == 0 {
+		pageSize = DEFAULT_PAGE_SIZE
+	}
 
 	log.Info("get lits of process by code: ", code)
 	processesList, err := pc.service.Get(c.Context(), code, "", page, pageSize)
@@ -125,18 +136,10 @@ func (pc *ProcessController) GetLists(c *fiber.Ctx) error {
 	if err != nil {
 		log.Error("cannot get processes list by code ", err)
 		if errors.Is(err, ErrProcessNotFound) {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-
-				"status":  "error",
-				"message": "no processes found",
-			})
+			return c.Status(fiber.StatusNotFound).JSON(ProcessNotFoundResp)
 		}
 
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-
-			"status":  "error",
-			"message": "cannot get processes list by code",
-		})
+		return c.Status(fiber.StatusInternalServerError).JSON(CannotGetListProcessResp)
 	}
 
 	resp := PaginatedResponse{
@@ -167,7 +170,7 @@ func (pc *ProcessController) Get(c *fiber.Ctx) error {
 	if err != nil {
 		log.Error("cannot get process by UUID ", err)
 		if errors.Is(err, ErrProcessNotFound) {
-			return c.Status(fiber.StatusNotFound).JSON(NoProcessFoundResp)
+			return c.Status(fiber.StatusNotFound).JSON(ProcessNotFoundResp)
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(CannotGetProcessResp)
