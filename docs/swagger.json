@@ -1,0 +1,144 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is the Business Process Engine API",
+        "title": "Business Process Engine API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "Alex Bezverkhniy",
+            "email": "alexander.bezverkhniy@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:3000",
+    "basePath": "/",
+    "paths": {
+        "/api/v1/process/": {
+            "post": {
+                "description": "Submits/Creates new process",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "process"
+                ],
+                "summary": "Creates new process",
+                "parameters": [
+                    {
+                        "description": "ProcessRequest",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ProcessDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.ProcessSubmitResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/Health": {
+            "get": {
+                "description": "get the status of server.",
+                "consumes": [
+                    "*/*"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "root"
+                ],
+                "summary": "Show the status of server.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.Metadata": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "api.ProcessDTO": {
+            "type": "object",
+            "properties": {
+                "changed_at": {
+                    "type": "string",
+                    "example": "2023-12-10T12:30:55.442484002-06:00"
+                },
+                "code": {
+                    "type": "string",
+                    "example": "requests"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2023-12-08T11:33:55.418484002-06:00"
+                },
+                "current_status": {
+                    "$ref": "#/definitions/api.ProcessStatusDTO"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/api.Metadata"
+                },
+                "statuses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.ProcessStatusDTO"
+                    }
+                },
+                "uuid": {
+                    "type": "string",
+                    "example": "23c968a6-5fc5-4e42-8f59-a7f9c0d4999c"
+                }
+            }
+        },
+        "api.ProcessStatusDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2023-12-08T11:33:55.418484002-06:00"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/api.Metadata"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "created"
+                }
+            }
+        },
+        "api.ProcessSubmitResponse": {
+            "description": "Response with UUID of created process.",
+            "type": "object",
+            "properties": {
+                "uuid": {
+                    "type": "string",
+                    "example": "23c968a6-5fc5-4e42-8f59-a7f9c0d4999c"
+                }
+            }
+        }
+    }
+}

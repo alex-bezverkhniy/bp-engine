@@ -38,6 +38,14 @@ func (pc *ProcessController) SetupRouter(router fiber.Router) {
 	router.Patch("/:code/:uuid/assign/:status", pc.AssignStatus)
 }
 
+// @Summary Creates new process
+// @Description Submits/Creates new process
+// @Tags process
+// @Accept application/json
+// @Param	request	body	ProcessDTO	true	"ProcessRequest"
+// @Produce json
+// @Success 200 {object} ProcessSubmitResponse
+// @Router /api/v1/process/ [post]
 func (pc *ProcessController) Submit(c *fiber.Ctx) error {
 	var process ProcessDTO
 	err := c.BodyParser(&process)
@@ -61,9 +69,10 @@ func (pc *ProcessController) Submit(c *fiber.Ctx) error {
 			"message": "cannot create new process",
 		})
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"uuid": uuid,
-	})
+	res := ProcessSubmitResponse{
+		Uuid: uuid,
+	}
+	return c.Status(fiber.StatusOK).JSON(res)
 }
 
 func (pc *ProcessController) GetLists(c *fiber.Ctx) error {
