@@ -34,6 +34,12 @@ type (
 	ProcessSubmitResponse struct {
 		Uuid string `json:"uuid" example:"23c968a6-5fc5-4e42-8f59-a7f9c0d4999c"`
 	}
+
+	// @Description Error message
+	ProcessErrorResponse struct {
+		Status  string `json:"status" example:"error"`
+		Message string `json:"message" example:"no process found"`
+	}
 )
 
 func (p *ProcessDTO) toEntity() *Process {

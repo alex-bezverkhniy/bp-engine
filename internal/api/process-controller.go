@@ -25,6 +25,18 @@ type (
 	}
 )
 
+var (
+	NoProcessFoundResp = ProcessErrorResponse{
+		Status:  "error",
+		Message: "process not found",
+	}
+
+	CannotGetProcessResp = ProcessErrorResponse{
+		Status:  "error",
+		Message: "cannot get process by UUID",
+	}
+)
+
 func NewProcessController(service ProcessService) *ProcessController {
 	return &ProcessController{
 		service: service,
@@ -112,7 +124,7 @@ func (pc *ProcessController) GetLists(c *fiber.Ctx) error {
 
 	if err != nil {
 		log.Error("cannot get processes list by code ", err)
-		if errors.Is(err, ErrNoProcessesFound) {
+		if errors.Is(err, ErrProcessNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 
 				"status":  "error",
@@ -142,7 +154,9 @@ func (pc *ProcessController) GetLists(c *fiber.Ctx) error {
 // @Param	code	path	string	true	"Code of Process"
 // @Param	uuid	path	string	true	"UUID of Process"
 // @Produce json
-// @Success 200 {object} ProcessListDTO
+// @Success	200 {object} ProcessListDTO
+// @Failed	404 {object} ProcessErrorResponse
+// @Failed	500 {object} ProcessErrorResponse
 // @Router /api/v1/process/{code}/{uuid} [get]
 func (pc *ProcessController) Get(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
@@ -152,19 +166,11 @@ func (pc *ProcessController) Get(c *fiber.Ctx) error {
 
 	if err != nil {
 		log.Error("cannot get process by UUID ", err)
-		if errors.Is(err, ErrNoProcessesFound) {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-
-				"status":  "error",
-				"message": "no process found",
-			})
+		if errors.Is(err, ErrProcessNotFound) {
+			return c.Status(fiber.StatusNotFound).JSON(NoProcessFoundResp)
 		}
 
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-
-			"status":  "error",
-			"message": "cannot get process by UUID",
-		})
+		return c.Status(fiber.StatusInternalServerError).JSON(CannotGetProcessResp)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(process)

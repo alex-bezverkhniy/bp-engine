@@ -75,7 +75,7 @@ func (r *ProcessRepo) GetByCode(ctx context.Context, code string, page int, page
 	}
 
 	if len(processes) == 0 {
-		return nil, ErrNoProcessesFound
+		return nil, gorm.ErrRecordNotFound
 	}
 
 	return processes, nil
