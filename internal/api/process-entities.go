@@ -37,7 +37,7 @@ func (p *Process) toDTO() ProcessDTO {
 	return ProcessDTO{
 		UUID:          p.UUID,
 		Code:          p.Code,
-		Metadata:      toMetadataDTO(p.Metadata),
+		Payload:       toMetadataDTO(p.Metadata),
 		CurrentStatus: status,
 		Statuses:      p.Statuses.toDTO(),
 		CreatedAt:     p.CreatedAt,
@@ -48,7 +48,7 @@ func (p *Process) toDTO() ProcessDTO {
 func (p *ProcessStatus) toDTO() *ProcessStatusDTO {
 	return &ProcessStatusDTO{
 		Name:      p.Name,
-		Metadata:  toMetadataDTO(p.Metadata),
+		Payload:   toMetadataDTO(p.Metadata),
 		CreatedAt: p.CreatedAt,
 	}
 }
@@ -70,9 +70,9 @@ func (pl ProcessList) toDTO() ProcessListDTO {
 	return res
 }
 
-func toMetadataDTO(d datatypes.JSON) Metadata {
+func toMetadataDTO(d datatypes.JSON) Payload {
 	val := d.String()
-	var metadata Metadata
+	var metadata Payload
 	if len(val) > 0 {
 		json.Unmarshal([]byte(val), &metadata)
 	}

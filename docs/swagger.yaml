@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  api.Metadata:
+  api.Payload:
     additionalProperties: true
     type: object
   api.ProcessDTO:
@@ -16,8 +16,8 @@ definitions:
         type: string
       current_status:
         $ref: '#/definitions/api.ProcessStatusDTO'
-      metadata:
-        $ref: '#/definitions/api.Metadata'
+      payload:
+        $ref: '#/definitions/api.Payload'
       statuses:
         items:
           $ref: '#/definitions/api.ProcessStatusDTO'
@@ -31,11 +31,11 @@ definitions:
       created_at:
         example: "2023-12-08T11:33:55.418484002-06:00"
         type: string
-      metadata:
-        $ref: '#/definitions/api.Metadata'
       name:
         example: created
         type: string
+      payload:
+        $ref: '#/definitions/api.Payload'
     type: object
   api.ProcessSubmitResponse:
     description: Response with UUID of created process.

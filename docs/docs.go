@@ -83,7 +83,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "api.Metadata": {
+        "api.Payload": {
             "type": "object",
             "additionalProperties": true
         },
@@ -105,8 +105,8 @@ const docTemplate = `{
                 "current_status": {
                     "$ref": "#/definitions/api.ProcessStatusDTO"
                 },
-                "metadata": {
-                    "$ref": "#/definitions/api.Metadata"
+                "payload": {
+                    "$ref": "#/definitions/api.Payload"
                 },
                 "statuses": {
                     "type": "array",
@@ -127,12 +127,12 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2023-12-08T11:33:55.418484002-06:00"
                 },
-                "metadata": {
-                    "$ref": "#/definitions/api.Metadata"
-                },
                 "name": {
                     "type": "string",
                     "example": "created"
+                },
+                "payload": {
+                    "$ref": "#/definitions/api.Payload"
                 }
             }
         },

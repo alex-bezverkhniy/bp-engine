@@ -7,8 +7,8 @@ Content-Type: application/json
 
 {
     "code": "requests",
-    "metadata": {
-        "sample": "metadata"
+    "payload": {
+        "sample": "payload"
     }
 }
 
@@ -33,8 +33,8 @@ PATCH http://localhost:3000/api/v1/process/requests/{{uuid}}/assign/created
 Content-Type: application/json
 
 {
-    "metadata": {
-        "sample": "metadata",
+    "payload": {
+        "sample": "payload",
         "moveit": "into created"
     }
 }
