@@ -1,4 +1,5 @@
 @uuid = ""
+@code = requests
 
 ### Create new process
 # @name createProcess
@@ -6,9 +7,9 @@ POST http://localhost:3000/api/v1/process
 Content-Type: application/json
 
 {
-    "code": "requests",
-    "metadata": {
-        "sample": "metadata"
+    "code": {{code}},
+    "payload": {
+        "sample": "payload"
     }
 }
 
@@ -18,23 +19,23 @@ Content-Type: application/json
 
 ### Get p1rocess by UUID
 
-GET http://localhost:3000/api/v1/process/requests/{{uuid}}
+GET http://localhost:3000/api/v1/process/{{code}}/{{uuid}}
 
 ### Get processes by code
 
-GET http://localhost:3000/api/v1/process/requests/list
+GET http://localhost:3000/api/v1/process/{{code}}/list
 X-Page-Size: 5
 X-Page: 1
 
 
 ### Move item of process into to status
 
-PATCH http://localhost:3000/api/v1/process/requests/{{uuid}}/assign/created
+PATCH http://localhost:3000/api/v1/process/{{code}}/{{uuid}}/assign/created
 Content-Type: application/json
 
 {
-    "metadata": {
-        "sample": "metadata",
+    "payload": {
+        "sample": "payload",
         "moveit": "into created"
     }
 }

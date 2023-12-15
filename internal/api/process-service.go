@@ -13,7 +13,7 @@ type (
 	ProcessService interface {
 		Submit(ctx context.Context, process *ProcessDTO) (string, error)
 		Get(ctx context.Context, code string, uuid string, page int, pageSize int) ([]ProcessDTO, error)
-		AssignStatus(ctx context.Context, code string, uuid string, status string, metadata Metadata) error
+		AssignStatus(ctx context.Context, code string, uuid string, status string, metadata Payload) error
 	}
 	ProcessSrvc struct {
 		repo ProcessRepository
@@ -73,7 +73,7 @@ func (s *ProcessSrvc) Get(ctx context.Context, code string, uuid string, page in
 	return processes.toDTO(), nil
 }
 
-func (s *ProcessSrvc) AssignStatus(ctx context.Context, code string, uuid string, status string, metadata Metadata) error {
+func (s *ProcessSrvc) AssignStatus(ctx context.Context, code string, uuid string, status string, metadata Payload) error {
 	err := s.repo.SetStatus(ctx, code, uuid, status, datatypes.JSON(metadata.toBytes()))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

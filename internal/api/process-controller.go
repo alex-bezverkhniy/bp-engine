@@ -38,6 +38,14 @@ func (pc *ProcessController) SetupRouter(router fiber.Router) {
 	router.Patch("/:code/:uuid/assign/:status", pc.AssignStatus)
 }
 
+// @Summary Creates new process
+// @Description Submits/Creates new process
+// @Tags process
+// @Accept application/json
+// @Param	request	body	ProcessDTO	true	"ProcessRequest"
+// @Produce json
+// @Success 200 {object} ProcessSubmitResponse
+// @Router /api/v1/process/ [post]
 func (pc *ProcessController) Submit(c *fiber.Ctx) error {
 	var process ProcessDTO
 	err := c.BodyParser(&process)
@@ -61,11 +69,21 @@ func (pc *ProcessController) Submit(c *fiber.Ctx) error {
 			"message": "cannot create new process",
 		})
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"uuid": uuid,
-	})
+	res := ProcessSubmitResponse{
+		Uuid: uuid,
+	}
+	return c.Status(fiber.StatusOK).JSON(res)
 }
 
+// @Summary Get list of processes
+// @Description Get list of processes
+// @Tags process
+// @Param	code		path	string	true	"Code of Process"
+// @Param	X-Page		header	int		false	"Page number"
+// @Param	X-Page-Size	header	int		false	"Page size"
+// @Produce json
+// @Success 200 {object} ProcessListDTO
+// @Router /api/v1/process/{code}/list [get]
 func (pc *ProcessController) GetLists(c *fiber.Ctx) error {
 	code := c.Params("code")
 
@@ -118,6 +136,14 @@ func (pc *ProcessController) GetLists(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(resp)
 }
 
+// @Summary Get process
+// @Description Get process by UUID
+// @Tags process
+// @Param	code	path	string	true	"Code of Process"
+// @Param	uuid	path	string	true	"UUID of Process"
+// @Produce json
+// @Success 200 {object} ProcessListDTO
+// @Router /api/v1/process/{code}/{uuid} [get]
 func (pc *ProcessController) Get(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 	code := c.Params("code")
@@ -144,6 +170,16 @@ func (pc *ProcessController) Get(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(process)
 }
 
+// @Summary Assign the process to the status
+// @Description Assign/move the process to the status
+// @Tags process
+// @Accept application/json
+// @Param	code	path	string				true	"Code of Process"
+// @Param	uuid	path	string				true	"UUID of Process"
+// @Param	request	body	ProcessStatusDTO	true	"ProcessStatus"
+// @Produce json
+// @Success 204
+// @Router /api/v1/process/ [patch]
 func (pc *ProcessController) AssignStatus(c *fiber.Ctx) error {
 	code := c.Params("code")
 	uuid := c.Params("uuid")
@@ -162,7 +198,7 @@ func (pc *ProcessController) AssignStatus(c *fiber.Ctx) error {
 	log.Info("get process by uuid: ", uuid)
 	log.Info("move it to: ", status)
 
-	err = pc.service.AssignStatus(c.Context(), code, uuid, status, processStatus.Metadata)
+	err = pc.service.AssignStatus(c.Context(), code, uuid, status, processStatus.Payload)
 	if err != nil {
 		log.Error("cannot move into new status ", err)
 		if errors.Is(err, ErrProcessNotFound) {

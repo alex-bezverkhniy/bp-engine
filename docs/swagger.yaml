@@ -1,0 +1,182 @@
+basePath: /
+definitions:
+  api.Payload:
+    additionalProperties: true
+    type: object
+  api.ProcessDTO:
+    properties:
+      changed_at:
+        example: "2023-12-10T12:30:55.442484002-06:00"
+        type: string
+      code:
+        example: requests
+        type: string
+      created_at:
+        example: "2023-12-08T11:33:55.418484002-06:00"
+        type: string
+      current_status:
+        $ref: '#/definitions/api.ProcessStatusDTO'
+      payload:
+        $ref: '#/definitions/api.Payload'
+      statuses:
+        items:
+          $ref: '#/definitions/api.ProcessStatusDTO'
+        type: array
+      uuid:
+        example: 23c968a6-5fc5-4e42-8f59-a7f9c0d4999c
+        type: string
+    type: object
+  api.ProcessStatusDTO:
+    properties:
+      created_at:
+        example: "2023-12-08T11:33:55.418484002-06:00"
+        type: string
+      name:
+        example: created
+        type: string
+      payload:
+        $ref: '#/definitions/api.Payload'
+    type: object
+  api.ProcessSubmitResponse:
+    description: Response with UUID of created process.
+    properties:
+      uuid:
+        example: 23c968a6-5fc5-4e42-8f59-a7f9c0d4999c
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact:
+    email: alexander.bezverkhniy@gmail.com
+    name: Alex Bezverkhniy
+  description: This is the Business Process Engine API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Business Process Engine API
+  version: "1.0"
+paths:
+  /api/v1/process/:
+    patch:
+      consumes:
+      - application/json
+      description: Assign/move the process to the status
+      parameters:
+      - description: Code of Process
+        in: path
+        name: code
+        required: true
+        type: string
+      - description: UUID of Process
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: ProcessStatus
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.ProcessStatusDTO'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Assign the process to the status
+      tags:
+      - process
+    post:
+      consumes:
+      - application/json
+      description: Submits/Creates new process
+      parameters:
+      - description: ProcessRequest
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.ProcessDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.ProcessSubmitResponse'
+      summary: Creates new process
+      tags:
+      - process
+  /api/v1/process/{code}/{uuid}:
+    get:
+      description: Get process by UUID
+      parameters:
+      - description: Code of Process
+        in: path
+        name: code
+        required: true
+        type: string
+      - description: UUID of Process
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.ProcessDTO'
+            type: array
+      summary: Get process
+      tags:
+      - process
+  /api/v1/process/{code}/list:
+    get:
+      description: Get list of processes
+      parameters:
+      - description: Code of Process
+        in: path
+        name: code
+        required: true
+        type: string
+      - description: Page number
+        in: header
+        name: X-Page
+        type: integer
+      - description: Page size
+        in: header
+        name: X-Page-Size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.ProcessDTO'
+            type: array
+      summary: Get list of processes
+      tags:
+      - process
+  /v1/Health:
+    get:
+      consumes:
+      - '*/*'
+      description: get the status of server.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Show the status of server.
+      tags:
+      - root
+swagger: "2.0"

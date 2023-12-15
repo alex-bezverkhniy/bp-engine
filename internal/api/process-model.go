@@ -10,23 +10,29 @@ import (
 type (
 	ProcessListDTO []ProcessDTO
 	ProcessDTO     struct {
-		UUID          string               `json:"uuid"`
-		Code          string               `json:"code"`
-		Metadata      Metadata             `json:"metadata,omitempty"`
+		UUID          string               `json:"uuid" example:"23c968a6-5fc5-4e42-8f59-a7f9c0d4999c"`
+		Code          string               `json:"code" example:"requests"`
+		Payload       Payload              `json:"payload,omitempty"`
 		CurrentStatus *ProcessStatusDTO    `json:"current_status,omitempty"`
 		Statuses      ProcessStatusListDTO `json:"statuses,omitempty"`
-		CreatedAt     time.Time            `json:"created_at"`
-		ChangedAt     time.Time            `json:"changed_at"`
+		CreatedAt     time.Time            `json:"created_at" example:"2023-12-08T11:33:55.418484002-06:00"`
+		ChangedAt     time.Time            `json:"changed_at" example:"2023-12-10T12:30:55.442484002-06:00"`
 	}
 
 	ProcessStatusListDTO []ProcessStatusDTO
 
-	Metadata map[string]interface{}
+	Payload map[string]interface{}
 
 	ProcessStatusDTO struct {
-		Name      string    `json:"name,omitempty"`
-		Metadata  Metadata  `json:"metadata,omitempty"`
-		CreatedAt time.Time `json:"created_at"`
+		Name      string    `json:"name,omitempty" example:"created"`
+		Payload   Payload   `json:"payload,omitempty"`
+		CreatedAt time.Time `json:"created_at" example:"2023-12-08T11:33:55.418484002-06:00"`
+	}
+
+	// Submit process response
+	// @Description Response with UUID of created process.
+	ProcessSubmitResponse struct {
+		Uuid string `json:"uuid" example:"23c968a6-5fc5-4e42-8f59-a7f9c0d4999c"`
 	}
 )
 
@@ -44,7 +50,7 @@ func (p *ProcessDTO) toEntity() *Process {
 	return &Process{
 		UUID:          p.UUID,
 		Code:          p.Code,
-		Metadata:      p.Metadata.toBytes(),
+		Payload:       p.Payload.toBytes(),
 		CurrentStatus: curentStatus,
 		Statuses:      statuses,
 	}
@@ -52,10 +58,10 @@ func (p *ProcessDTO) toEntity() *Process {
 
 func (p *ProcessStatusDTO) toEntity() ProcessStatus {
 	metadata := datatypes.JSON{}
-	metadata.Scan(p.Metadata)
+	metadata.Scan(p.Payload)
 	return ProcessStatus{
-		Name:     p.Name,
-		Metadata: metadata,
+		Name:    p.Name,
+		Payload: metadata,
 	}
 }
 
@@ -68,7 +74,7 @@ func (pp ProcessStatusListDTO) toEntity() ProcessStatusList {
 	return res
 }
 
-func (m Metadata) toBytes() []byte {
+func (m Payload) toBytes() []byte {
 	bytes, _ := json.Marshal(m)
 	return bytes
 }
