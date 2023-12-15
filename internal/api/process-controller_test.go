@@ -82,7 +82,7 @@ func TestGet(t *testing.T) {
 					Return(nil, errors.New("odd error"))
 				return NewProcessController(&service)
 			},
-			wantCode: http.StatusOK,
+			wantCode: http.StatusInternalServerError,
 			wantErr:  &CannotGetProcessResp,
 		},
 	}
