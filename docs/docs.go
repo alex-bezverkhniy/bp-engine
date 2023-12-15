@@ -55,6 +55,132 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "description": "Assign/move the process to the status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "process"
+                ],
+                "summary": "Assign the process to the status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Code of Process",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of Process",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "ProcessStatus",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ProcessStatusDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/api/v1/process/{code}/list": {
+            "get": {
+                "description": "Get list of processes",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "process"
+                ],
+                "summary": "Get list of processes",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Code of Process",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "X-Page",
+                        "in": "header"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "X-Page-Size",
+                        "in": "header"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.ProcessDTO"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/process/{code}/{uuid}": {
+            "get": {
+                "description": "Get process by UUID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "process"
+                ],
+                "summary": "Get process",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Code of Process",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of Process",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.ProcessDTO"
+                            }
+                        }
+                    }
+                }
             }
         },
         "/v1/Health": {

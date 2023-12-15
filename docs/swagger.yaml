@@ -58,6 +58,35 @@ info:
   version: "1.0"
 paths:
   /api/v1/process/:
+    patch:
+      consumes:
+      - application/json
+      description: Assign/move the process to the status
+      parameters:
+      - description: Code of Process
+        in: path
+        name: code
+        required: true
+        type: string
+      - description: UUID of Process
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: ProcessStatus
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.ProcessStatusDTO'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Assign the process to the status
+      tags:
+      - process
     post:
       consumes:
       - application/json
@@ -77,6 +106,61 @@ paths:
           schema:
             $ref: '#/definitions/api.ProcessSubmitResponse'
       summary: Creates new process
+      tags:
+      - process
+  /api/v1/process/{code}/{uuid}:
+    get:
+      description: Get process by UUID
+      parameters:
+      - description: Code of Process
+        in: path
+        name: code
+        required: true
+        type: string
+      - description: UUID of Process
+        in: path
+        name: uuid
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.ProcessDTO'
+            type: array
+      summary: Get process
+      tags:
+      - process
+  /api/v1/process/{code}/list:
+    get:
+      description: Get list of processes
+      parameters:
+      - description: Code of Process
+        in: path
+        name: code
+        required: true
+        type: string
+      - description: Page number
+        in: header
+        name: X-Page
+        type: integer
+      - description: Page size
+        in: header
+        name: X-Page-Size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.ProcessDTO'
+            type: array
+      summary: Get list of processes
       tags:
       - process
   /v1/Health:

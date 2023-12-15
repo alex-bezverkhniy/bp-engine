@@ -75,6 +75,15 @@ func (pc *ProcessController) Submit(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(res)
 }
 
+// @Summary Get list of processes
+// @Description Get list of processes
+// @Tags process
+// @Param	code		path	string	true	"Code of Process"
+// @Param	X-Page		header	int		false	"Page number"
+// @Param	X-Page-Size	header	int		false	"Page size"
+// @Produce json
+// @Success 200 {object} ProcessListDTO
+// @Router /api/v1/process/{code}/list [get]
 func (pc *ProcessController) GetLists(c *fiber.Ctx) error {
 	code := c.Params("code")
 
@@ -127,6 +136,14 @@ func (pc *ProcessController) GetLists(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(resp)
 }
 
+// @Summary Get process
+// @Description Get process by UUID
+// @Tags process
+// @Param	code	path	string	true	"Code of Process"
+// @Param	uuid	path	string	true	"UUID of Process"
+// @Produce json
+// @Success 200 {object} ProcessListDTO
+// @Router /api/v1/process/{code}/{uuid} [get]
 func (pc *ProcessController) Get(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 	code := c.Params("code")
@@ -153,6 +170,16 @@ func (pc *ProcessController) Get(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(process)
 }
 
+// @Summary Assign the process to the status
+// @Description Assign/move the process to the status
+// @Tags process
+// @Accept application/json
+// @Param	code	path	string				true	"Code of Process"
+// @Param	uuid	path	string				true	"UUID of Process"
+// @Param	request	body	ProcessStatusDTO	true	"ProcessStatus"
+// @Produce json
+// @Success 204
+// @Router /api/v1/process/ [patch]
 func (pc *ProcessController) AssignStatus(c *fiber.Ctx) error {
 	code := c.Params("code")
 	uuid := c.Params("uuid")
