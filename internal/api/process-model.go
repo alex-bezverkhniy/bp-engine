@@ -50,7 +50,7 @@ func (p *ProcessDTO) toEntity() *Process {
 	return &Process{
 		UUID:          p.UUID,
 		Code:          p.Code,
-		Metadata:      p.Payload.toBytes(),
+		Payload:       p.Payload.toBytes(),
 		CurrentStatus: curentStatus,
 		Statuses:      statuses,
 	}
@@ -60,8 +60,8 @@ func (p *ProcessStatusDTO) toEntity() ProcessStatus {
 	metadata := datatypes.JSON{}
 	metadata.Scan(p.Payload)
 	return ProcessStatus{
-		Name:     p.Name,
-		Metadata: metadata,
+		Name:    p.Name,
+		Payload: metadata,
 	}
 }
 

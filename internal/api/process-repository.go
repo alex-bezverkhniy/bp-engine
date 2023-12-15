@@ -91,7 +91,7 @@ func (r *ProcessRepo) SetStatus(ctx context.Context, code string, uuid string, s
 	newStatus := &ProcessStatus{
 		ProcessID: process.ID,
 		Name:      status,
-		Metadata:  metadata,
+		Payload:   metadata,
 	}
 
 	err = r.db.WithContext(ctx).Model(&ProcessStatus{}).Save(&newStatus).Error

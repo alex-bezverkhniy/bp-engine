@@ -14,7 +14,7 @@ type (
 		gorm.Model
 		UUID          string
 		Code          string
-		Metadata      datatypes.JSON
+		Payload       datatypes.JSON
 		CurrentStatus ProcessStatus
 		Statuses      ProcessStatusList
 	}
@@ -25,7 +25,7 @@ type (
 		gorm.Model
 		ProcessID uint
 		Name      string
-		Metadata  datatypes.JSON
+		Payload   datatypes.JSON
 	}
 )
 
@@ -37,7 +37,7 @@ func (p *Process) toDTO() ProcessDTO {
 	return ProcessDTO{
 		UUID:          p.UUID,
 		Code:          p.Code,
-		Payload:       toMetadataDTO(p.Metadata),
+		Payload:       toPayloadDTO(p.Payload),
 		CurrentStatus: status,
 		Statuses:      p.Statuses.toDTO(),
 		CreatedAt:     p.CreatedAt,
@@ -48,7 +48,7 @@ func (p *Process) toDTO() ProcessDTO {
 func (p *ProcessStatus) toDTO() *ProcessStatusDTO {
 	return &ProcessStatusDTO{
 		Name:      p.Name,
-		Payload:   toMetadataDTO(p.Metadata),
+		Payload:   toPayloadDTO(p.Payload),
 		CreatedAt: p.CreatedAt,
 	}
 }
@@ -70,11 +70,11 @@ func (pl ProcessList) toDTO() ProcessListDTO {
 	return res
 }
 
-func toMetadataDTO(d datatypes.JSON) Payload {
+func toPayloadDTO(d datatypes.JSON) Payload {
 	val := d.String()
-	var metadata Payload
+	var payload Payload
 	if len(val) > 0 {
-		json.Unmarshal([]byte(val), &metadata)
+		json.Unmarshal([]byte(val), &payload)
 	}
-	return metadata
+	return payload
 }
