@@ -12,7 +12,7 @@ import (
 type (
 	ProcessService interface {
 		Submit(ctx context.Context, process *ProcessDTO) (string, error)
-		Get(ctx context.Context, code string, uuid string, page int, pageSize int) ([]ProcessDTO, error)
+		Get(ctx context.Context, code string, uuid string, page int, pageSize int) (ProcessListDTO, error)
 		AssignStatus(ctx context.Context, code string, uuid string, status string, metadata Payload) error
 	}
 	ProcessSrvc struct {
@@ -21,9 +21,8 @@ type (
 )
 
 var (
-	ErrNoProcessesFound    error = errors.New("no processes found")
 	ErrProcessNotFound     error = errors.New("process not found")
-	ErrCannotCreateProcess error = errors.New("process not found")
+	ErrCannotCreateProcess error = errors.New("cannot create process")
 )
 
 func NewProcessService(repo ProcessRepository) ProcessService {
@@ -40,7 +39,7 @@ func (s *ProcessSrvc) Submit(ctx context.Context, process *ProcessDTO) (string, 
 	return uuid, nil
 }
 
-func (s *ProcessSrvc) Get(ctx context.Context, code string, uuid string, page int, pageSize int) ([]ProcessDTO, error) {
+func (s *ProcessSrvc) Get(ctx context.Context, code string, uuid string, page int, pageSize int) (ProcessListDTO, error) {
 	var processes ProcessList
 	var process *Process
 	var err error

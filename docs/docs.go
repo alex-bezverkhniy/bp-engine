@@ -55,49 +55,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "patch": {
-                "description": "Assign/move the process to the status",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "process"
-                ],
-                "summary": "Assign the process to the status",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Code of Process",
-                        "name": "code",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "UUID of Process",
-                        "name": "uuid",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "ProcessStatus",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.ProcessStatusDTO"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    }
-                }
             }
         },
         "/api/v1/process/{code}/list": {
@@ -179,6 +136,58 @@ const docTemplate = `{
                                 "$ref": "#/definitions/api.ProcessDTO"
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/api/v1/process/{code}/{uuid}/assign/{status}": {
+            "patch": {
+                "description": "Assign/move the process to the status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "process"
+                ],
+                "summary": "Assign the process to the status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Code of Process",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "UUID of Process",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status of Process",
+                        "name": "status",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "ProcessStatus",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ProcessStatusDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
                     }
                 }
             }
