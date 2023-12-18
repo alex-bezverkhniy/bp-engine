@@ -52,6 +52,14 @@ var (
 		Status:  "error",
 		Message: "cannot move into new status",
 	}
+	NotSupportedValueForPageHdrErrResp = ProcessErrorResponse{
+		Status:  "error",
+		Message: "not supported value for " + HEADERNAME_PAGE,
+	}
+	NotSupportedValueForPageSizeHdrErrResp = ProcessErrorResponse{
+		Status:  "error",
+		Message: "not supported value for " + HEADERNAME_PAGE_SIZE,
+	}
 )
 
 func NewProcessController(service ProcessService) *ProcessController {
@@ -114,10 +122,7 @@ func (pc *ProcessController) GetList(c *fiber.Ctx) error {
 
 	page, err = getHeaderValue[int](c, HEADERNAME_PAGE, DEFAULT_PAGE)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"status":  "error",
-			"message": "not supported value for " + HEADERNAME_PAGE,
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(NotSupportedValueForPageHdrErrResp)
 	}
 	if page == 0 {
 		page = DEFAULT_PAGE
@@ -125,10 +130,7 @@ func (pc *ProcessController) GetList(c *fiber.Ctx) error {
 
 	pageSize, err = getHeaderValue[int](c, HEADERNAME_PAGE_SIZE, DEFAULT_PAGE_SIZE)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"status":  "error",
-			"message": "not supported value for " + HEADERNAME_PAGE_SIZE,
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(NotSupportedValueForPageSizeHdrErrResp)
 	}
 	if pageSize == 0 {
 		pageSize = DEFAULT_PAGE_SIZE
