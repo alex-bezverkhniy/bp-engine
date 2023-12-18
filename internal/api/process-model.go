@@ -24,9 +24,9 @@ type (
 	Payload map[string]interface{}
 
 	ProcessStatusDTO struct {
-		Name      string    `json:"name,omitempty" example:"created"`
-		Payload   Payload   `json:"payload,omitempty"`
-		CreatedAt time.Time `json:"created_at" example:"2023-12-08T11:33:55.418484002-06:00"`
+		Name      string     `json:"name,omitempty" example:"created"`
+		Payload   Payload    `json:"payload,omitempty"`
+		CreatedAt *time.Time `json:"created_at,omitempty" example:"2023-12-08T11:33:55.418484002-06:00"`
 	}
 
 	// Submit process response

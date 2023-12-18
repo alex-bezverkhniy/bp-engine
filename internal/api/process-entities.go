@@ -49,7 +49,7 @@ func (p *ProcessStatus) toDTO() *ProcessStatusDTO {
 	return &ProcessStatusDTO{
 		Name:      p.Name,
 		Payload:   toPayloadDTO(p.Payload),
-		CreatedAt: p.CreatedAt,
+		CreatedAt: &p.CreatedAt,
 	}
 }
 
