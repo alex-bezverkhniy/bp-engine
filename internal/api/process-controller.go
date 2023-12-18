@@ -26,21 +26,21 @@ type (
 )
 
 var (
-	ProcessNotFoundResp = ProcessErrorResponse{
+	ProcessNotFoundErrResp = ProcessErrorResponse{
 		Status:  "error",
 		Message: "process not found",
 	}
 
-	CannotGetProcessResp = ProcessErrorResponse{
+	CannotGetProcessErrResp = ProcessErrorResponse{
 		Status:  "error",
 		Message: "cannot get process by UUID",
 	}
 
-	CannotGetListProcessResp = ProcessErrorResponse{
+	CannotGetListProcessErrResp = ProcessErrorResponse{
 		Status:  "error",
 		Message: "cannot get processes list by code",
 	}
-	CannotReadRequestBodyResp = ProcessErrorResponse{
+	CannotReadRequestBodyErrResp = ProcessErrorResponse{
 		Status:  "error",
 		Message: "cannot read request body",
 	}
@@ -139,10 +139,10 @@ func (pc *ProcessController) GetList(c *fiber.Ctx) error {
 	if err != nil {
 		log.Error("cannot get processes list by code ", err)
 		if errors.Is(err, ErrProcessNotFound) {
-			return c.Status(fiber.StatusNotFound).JSON(ProcessNotFoundResp)
+			return c.Status(fiber.StatusNotFound).JSON(ProcessNotFoundErrResp)
 		}
 
-		return c.Status(fiber.StatusInternalServerError).JSON(CannotGetListProcessResp)
+		return c.Status(fiber.StatusInternalServerError).JSON(CannotGetListProcessErrResp)
 	}
 
 	resp := PaginatedResponse{
@@ -173,10 +173,10 @@ func (pc *ProcessController) Get(c *fiber.Ctx) error {
 	if err != nil {
 		log.Error("cannot get process by UUID ", err)
 		if errors.Is(err, ErrProcessNotFound) {
-			return c.Status(fiber.StatusNotFound).JSON(ProcessNotFoundResp)
+			return c.Status(fiber.StatusNotFound).JSON(ProcessNotFoundErrResp)
 		}
 
-		return c.Status(fiber.StatusInternalServerError).JSON(CannotGetProcessResp)
+		return c.Status(fiber.StatusInternalServerError).JSON(CannotGetProcessErrResp)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(process)

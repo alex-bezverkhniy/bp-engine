@@ -70,7 +70,7 @@ func TestGet(t *testing.T) {
 				return NewProcessController(&service)
 			},
 			wantCode: http.StatusNotFound,
-			wantErr:  &ProcessNotFoundResp,
+			wantErr:  &ProcessNotFoundErrResp,
 		},
 		{
 			name: "failed - 500",
@@ -85,7 +85,7 @@ func TestGet(t *testing.T) {
 				return NewProcessController(&service)
 			},
 			wantCode: http.StatusInternalServerError,
-			wantErr:  &CannotGetProcessResp,
+			wantErr:  &CannotGetProcessErrResp,
 		},
 	}
 
@@ -214,7 +214,7 @@ func TestGetList(t *testing.T) {
 				return NewProcessController(&service)
 			},
 			wantCode: http.StatusNotFound,
-			wantErr:  &ProcessNotFoundResp,
+			wantErr:  &ProcessNotFoundErrResp,
 		},
 		{
 			name: "failed - 500",
@@ -228,7 +228,7 @@ func TestGetList(t *testing.T) {
 				return NewProcessController(&service)
 			},
 			wantCode: http.StatusInternalServerError,
-			wantErr:  &CannotGetListProcessResp,
+			wantErr:  &CannotGetListProcessErrResp,
 		},
 	}
 
@@ -305,7 +305,7 @@ func TestSubmit(t *testing.T) {
 				return NewProcessController(&service)
 			},
 			wantCode: http.StatusBadRequest,
-			wantErr:  &CannotReadRequestBodyResp,
+			wantErr:  &CannotReadRequestBodyErrResp,
 		},
 		{
 			name: "success",
