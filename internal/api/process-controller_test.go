@@ -308,6 +308,25 @@ func TestSubmit(t *testing.T) {
 			wantErr:  &CannotReadRequestBodyErrResp,
 		},
 		{
+			name: "fail - 500",
+			args: args{
+				reqPayload: ProcessDTO{
+					Code: "requests",
+					Payload: Payload{
+						"sample": "data",
+					},
+				},
+			},
+			mockFunc: func(args args) *ProcessController {
+				service := ProcessSrvcMock{}
+				service.On("Submit", mock.Anything, &args.reqPayload).
+					Return("", errors.New("OMG error"))
+				return NewProcessController(&service)
+			},
+			wantCode: http.StatusInternalServerError,
+			wantErr:  &CannotCreateNewProcessErrResp,
+		},
+		{
 			name: "success",
 			args: args{
 				reqPayload: ProcessDTO{

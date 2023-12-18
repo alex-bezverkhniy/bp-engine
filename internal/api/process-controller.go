@@ -44,6 +44,10 @@ var (
 		Status:  "error",
 		Message: "cannot read request body",
 	}
+	CannotCreateNewProcessErrResp = ProcessErrorResponse{
+		Status:  "error",
+		Message: "cannot create new process",
+	}
 )
 
 func NewProcessController(service ProcessService) *ProcessController {
@@ -72,10 +76,7 @@ func (pc *ProcessController) Submit(c *fiber.Ctx) error {
 	err := c.BodyParser(&process)
 	if err != nil {
 		log.Error("cannot read request body ", err)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"status":  "error",
-			"message": "cannot read request body",
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(CannotReadRequestBodyErrResp)
 	}
 
 	log.Infof("create new process: %v", process)
@@ -83,11 +84,7 @@ func (pc *ProcessController) Submit(c *fiber.Ctx) error {
 
 	if err != nil {
 		log.Error("cannot create new process ", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-
-			"status":  "error",
-			"message": "cannot create new process",
-		})
+		return c.Status(fiber.StatusInternalServerError).JSON(CannotCreateNewProcessErrResp)
 	}
 	res := ProcessSubmitResponse{
 		Uuid: uuid,
