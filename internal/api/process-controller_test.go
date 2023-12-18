@@ -400,3 +400,172 @@ func TestSubmit(t *testing.T) {
 		})
 	}
 }
+
+func TestAssignStatus(t *testing.T) {
+	defaultUuid := uuid.NewString()
+	// ctx := context.Background()
+	type args struct {
+		code       string
+		uuid       string
+		status     string
+		reqPayload ProcessStatusDTO
+	}
+	tests := []struct {
+		name     string
+		args     args
+		wantCode int
+		wantResp ProcessSubmitResponse
+		wantErr  *ProcessErrorResponse
+		mockFunc func(args) *ProcessController
+	}{
+		{
+			name: "fail - 400",
+			args: args{
+				code:   "requests",
+				uuid:   defaultUuid,
+				status: "done",
+				reqPayload: ProcessStatusDTO{
+					Payload: Payload{
+						"sample": "data",
+					},
+				},
+			},
+			mockFunc: func(args args) *ProcessController {
+				service := ProcessSrvcMock{}
+				service.On("AssignStatus", mock.Anything,
+					args.code,
+					args.uuid,
+					args.status,
+					&args.reqPayload).
+					Return(nil)
+				return NewProcessController(&service)
+			},
+			wantCode: http.StatusBadRequest,
+			wantErr:  &CannotReadRequestBodyErrResp,
+		},
+		{
+			name: "fail - 404",
+			args: args{
+				code:   "requests",
+				uuid:   defaultUuid,
+				status: "done",
+				reqPayload: ProcessStatusDTO{
+					Payload: Payload{
+						"sample": "data",
+					},
+				},
+			},
+			mockFunc: func(args args) *ProcessController {
+				service := ProcessSrvcMock{}
+				service.On("AssignStatus", mock.Anything,
+					args.code,
+					args.uuid,
+					args.status,
+					args.reqPayload.Payload).
+					Return(ErrProcessNotFound)
+				return NewProcessController(&service)
+			},
+			wantCode: http.StatusNotFound,
+			wantErr:  &ProcessNotFoundErrResp,
+		},
+		{
+			name: "fail - 500",
+			args: args{
+				code:   "requests",
+				uuid:   defaultUuid,
+				status: "done",
+				reqPayload: ProcessStatusDTO{
+					Payload: Payload{
+						"sample": "data",
+					},
+				},
+			},
+			mockFunc: func(args args) *ProcessController {
+				service := ProcessSrvcMock{}
+				service.On("AssignStatus", mock.Anything,
+					args.code,
+					args.uuid,
+					args.status,
+					args.reqPayload.Payload).
+					Return(errors.New("OMG error"))
+				return NewProcessController(&service)
+			},
+			wantCode: http.StatusInternalServerError,
+			wantErr:  &CannotMoveItIntoNewStatusErrResp,
+		},
+		{
+			name: "success",
+			args: args{
+				code:   "requests",
+				uuid:   defaultUuid,
+				status: "done",
+				reqPayload: ProcessStatusDTO{
+					Payload: Payload{
+						"sample": "data",
+					},
+				},
+			},
+			mockFunc: func(args args) *ProcessController {
+				service := ProcessSrvcMock{}
+				service.On("AssignStatus", mock.Anything,
+					args.code,
+					args.uuid,
+					args.status,
+					args.reqPayload.Payload).
+					Return(nil)
+				return NewProcessController(&service)
+			},
+			wantCode: http.StatusNoContent,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var testApp = fiber.New()
+			controller := tt.mockFunc(tt.args)
+
+			testGroup := testApp.Group("/test/")
+			controller.SetupRouter(testGroup)
+			url := fmt.Sprintf("http://localhost/test/%s/%s/assign/%s", tt.args.code, tt.args.uuid, tt.args.status)
+
+			var data []byte
+			var err error
+			if tt.wantCode == http.StatusBadRequest {
+				data = []byte("something bad")
+			} else {
+				data, err = json.Marshal(tt.args.reqPayload)
+				assert.Nil(t, err)
+			}
+
+			reqBody := bytes.NewBuffer(data)
+
+			req := httptest.NewRequest("PATCH", url, reqBody)
+
+			req.Header.Add("Content-Type", "application/json")
+
+			resp, err := testApp.Test(req)
+
+			assert.Nil(t, err)
+			assert.Equal(t, tt.wantCode, resp.StatusCode)
+
+			respBody, err := io.ReadAll(resp.Body)
+			assert.Nil(t, err)
+
+			if tt.wantErr != nil {
+				var gotResp ProcessErrorResponse
+				json.Unmarshal(respBody, &gotResp)
+				assert.Nil(t, err)
+
+				assert.Equal(t, *tt.wantErr, gotResp)
+
+			} else {
+				var gotResp ProcessSubmitResponse
+				json.Unmarshal(respBody, &gotResp)
+				assert.Nil(t, err)
+
+				assert.Equal(t, tt.wantResp.Uuid, gotResp.Uuid)
+			}
+
+		})
+	}
+}

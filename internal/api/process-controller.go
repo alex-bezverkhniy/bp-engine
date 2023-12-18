@@ -48,6 +48,10 @@ var (
 		Status:  "error",
 		Message: "cannot create new process",
 	}
+	CannotMoveItIntoNewStatusErrResp = ProcessErrorResponse{
+		Status:  "error",
+		Message: "cannot move into new status",
+	}
 )
 
 func NewProcessController(service ProcessService) *ProcessController {
@@ -185,10 +189,11 @@ func (pc *ProcessController) Get(c *fiber.Ctx) error {
 // @Accept application/json
 // @Param	code	path	string				true	"Code of Process"
 // @Param	uuid	path	string				true	"UUID of Process"
+// @Param	status	path	string				true	"Status of Process"
 // @Param	request	body	ProcessStatusDTO	true	"ProcessStatus"
 // @Produce json
 // @Success 204
-// @Router /api/v1/process/ [patch]
+// @Router /api/v1/process/{code}/{uuid}/assign/{status}	[patch]
 func (pc *ProcessController) AssignStatus(c *fiber.Ctx) error {
 	code := c.Params("code")
 	uuid := c.Params("uuid")
@@ -198,10 +203,7 @@ func (pc *ProcessController) AssignStatus(c *fiber.Ctx) error {
 	err := c.BodyParser(&processStatus)
 	if err != nil {
 		log.Error("cannot read request body ", err)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"status":  "error",
-			"message": "cannot read request body",
-		})
+		return c.Status(fiber.StatusBadRequest).JSON(CannotReadRequestBodyErrResp)
 	}
 
 	log.Info("get process by uuid: ", uuid)
@@ -211,17 +213,10 @@ func (pc *ProcessController) AssignStatus(c *fiber.Ctx) error {
 	if err != nil {
 		log.Error("cannot move into new status ", err)
 		if errors.Is(err, ErrProcessNotFound) {
-			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-
-				"status":  "error",
-				"message": "process not found",
-			})
+			return c.Status(fiber.StatusNotFound).JSON(ProcessNotFoundErrResp)
 		}
 
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"status":  "error",
-			"message": "cannot move into new status",
-		})
+		return c.Status(fiber.StatusInternalServerError).JSON(CannotMoveItIntoNewStatusErrResp)
 	}
 
 	c.Status(fiber.StatusNoContent)
