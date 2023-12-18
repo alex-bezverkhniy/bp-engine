@@ -215,21 +215,20 @@ func TestGetList(t *testing.T) {
 			wantCode: http.StatusNotFound,
 			wantErr:  &ProcessNotFoundResp,
 		},
-		// {
-		// 	name: "failed - 500",
-		// 	args: args{
-		// 		code: "test",
-		// 		uuid: defaultUuid,
-		// 	},
-		// 	mockFunc: func(args args) *ProcessController {
-		// 		service := ProcessSrvcMock{}
-		// 		service.On("Get", mock.Anything, args.code, args.uuid, DEFAULT_PAGE, DEFAULT_PAGE_SIZE).
-		// 			Return(nil, errors.New("odd error"))
-		// 		return NewProcessController(&service)
-		// 	},
-		// 	wantCode: http.StatusInternalServerError,
-		// 	wantErr:  &CannotGetProcessResp,
-		// },
+		{
+			name: "failed - 500",
+			args: args{
+				code: "test",
+			},
+			mockFunc: func(args args) *ProcessController {
+				service := ProcessSrvcMock{}
+				service.On("Get", mock.Anything, args.code, "", DEFAULT_PAGE, DEFAULT_PAGE_SIZE).
+					Return(nil, errors.New("OMG error"))
+				return NewProcessController(&service)
+			},
+			wantCode: http.StatusInternalServerError,
+			wantErr:  &CannotGetListProcessResp,
+		},
 	}
 
 	for _, tt := range tests {
