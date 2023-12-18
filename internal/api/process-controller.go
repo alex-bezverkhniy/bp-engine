@@ -50,7 +50,7 @@ func NewProcessController(service ProcessService) *ProcessController {
 
 func (pc *ProcessController) SetupRouter(router fiber.Router) {
 	router.Post("/", pc.Submit)
-	router.Get("/:code/list", pc.GetLists)
+	router.Get("/:code/list", pc.GetList)
 	router.Get("/:code/:uuid", pc.Get)
 	router.Patch("/:code/:uuid/assign/:status", pc.AssignStatus)
 }
@@ -101,7 +101,7 @@ func (pc *ProcessController) Submit(c *fiber.Ctx) error {
 // @Produce json
 // @Success 200 {object} ProcessListDTO
 // @Router /api/v1/process/{code}/list [get]
-func (pc *ProcessController) GetLists(c *fiber.Ctx) error {
+func (pc *ProcessController) GetList(c *fiber.Ctx) error {
 	code := c.Params("code")
 
 	var err error
