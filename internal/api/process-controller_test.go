@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -267,6 +268,114 @@ func TestGetList(t *testing.T) {
 				assert.Equal(t, tt.wantResp.PageSize, gotResp.PageSize)
 				assert.Equal(t, tt.wantResp.Data, gotResp.Data)
 
+			}
+
+		})
+	}
+}
+
+func TestSubmit(t *testing.T) {
+	defaultUuid := uuid.NewString()
+	// ctx := context.Background()
+	type args struct {
+		reqPayload ProcessDTO
+	}
+	tests := []struct {
+		name     string
+		args     args
+		wantCode int
+		wantResp ProcessSubmitResponse
+		wantErr  *ProcessErrorResponse
+		mockFunc func(args) *ProcessController
+	}{
+		{
+			name: "fail - 400",
+			args: args{
+				reqPayload: ProcessDTO{
+					Code: "requests",
+					Payload: Payload{
+						"sample": "data",
+					},
+				},
+			},
+			mockFunc: func(args args) *ProcessController {
+				service := ProcessSrvcMock{}
+				service.On("Submit", mock.Anything, &args.reqPayload).
+					Return(defaultUuid, nil)
+				return NewProcessController(&service)
+			},
+			wantCode: http.StatusBadRequest,
+			wantErr:  &CannotReadRequestBodyResp,
+		},
+		{
+			name: "success",
+			args: args{
+				reqPayload: ProcessDTO{
+					Code: "requests",
+					Payload: Payload{
+						"sample": "data",
+					},
+				},
+			},
+			mockFunc: func(args args) *ProcessController {
+				service := ProcessSrvcMock{}
+				service.On("Submit", mock.Anything, &args.reqPayload).
+					Return(defaultUuid, nil)
+				return NewProcessController(&service)
+			},
+			wantCode: http.StatusOK,
+			wantResp: ProcessSubmitResponse{
+				Uuid: defaultUuid,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var testApp = fiber.New()
+			controller := tt.mockFunc(tt.args)
+
+			testGroup := testApp.Group("/test/")
+			controller.SetupRouter(testGroup)
+			url := "http://localhost/test/"
+
+			var data []byte
+			var err error
+			if tt.wantCode == http.StatusBadRequest {
+				data = []byte("something bad")
+			} else {
+				data, err = json.Marshal(tt.args.reqPayload)
+				assert.Nil(t, err)
+			}
+
+			reqBody := bytes.NewBuffer(data)
+
+			req, err := http.NewRequest("POST", url, reqBody)
+			assert.Nil(t, err)
+
+			req.Header.Add("Content-Type", "application/json")
+
+			resp, err := testApp.Test(req)
+
+			assert.Nil(t, err)
+			assert.Equal(t, tt.wantCode, resp.StatusCode)
+
+			respBody, err := io.ReadAll(resp.Body)
+			assert.Nil(t, err)
+
+			if tt.wantErr != nil {
+				var gotResp ProcessErrorResponse
+				json.Unmarshal(respBody, &gotResp)
+				assert.Nil(t, err)
+
+				assert.Equal(t, *tt.wantErr, gotResp)
+
+			} else {
+				var gotResp ProcessSubmitResponse
+				json.Unmarshal(respBody, &gotResp)
+				assert.Nil(t, err)
+
+				assert.Equal(t, tt.wantResp.Uuid, gotResp.Uuid)
 			}
 
 		})

@@ -40,6 +40,10 @@ var (
 		Status:  "error",
 		Message: "cannot get processes list by code",
 	}
+	CannotReadRequestBodyResp = ProcessErrorResponse{
+		Status:  "error",
+		Message: "cannot read request body",
+	}
 )
 
 func NewProcessController(service ProcessService) *ProcessController {
@@ -69,7 +73,6 @@ func (pc *ProcessController) Submit(c *fiber.Ctx) error {
 	if err != nil {
 		log.Error("cannot read request body ", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-
 			"status":  "error",
 			"message": "cannot read request body",
 		})
