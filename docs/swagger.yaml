@@ -58,35 +58,6 @@ info:
   version: "1.0"
 paths:
   /api/v1/process/:
-    patch:
-      consumes:
-      - application/json
-      description: Assign/move the process to the status
-      parameters:
-      - description: Code of Process
-        in: path
-        name: code
-        required: true
-        type: string
-      - description: UUID of Process
-        in: path
-        name: uuid
-        required: true
-        type: string
-      - description: ProcessStatus
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/api.ProcessStatusDTO'
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-      summary: Assign the process to the status
-      tags:
-      - process
     post:
       consumes:
       - application/json
@@ -132,6 +103,41 @@ paths:
               $ref: '#/definitions/api.ProcessDTO'
             type: array
       summary: Get process
+      tags:
+      - process
+  /api/v1/process/{code}/{uuid}/assign/{status}:
+    patch:
+      consumes:
+      - application/json
+      description: Assign/move the process to the status
+      parameters:
+      - description: Code of Process
+        in: path
+        name: code
+        required: true
+        type: string
+      - description: UUID of Process
+        in: path
+        name: uuid
+        required: true
+        type: string
+      - description: Status of Process
+        in: path
+        name: status
+        required: true
+        type: string
+      - description: ProcessStatus
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.ProcessStatusDTO'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+      summary: Assign the process to the status
       tags:
       - process
   /api/v1/process/{code}/list:
