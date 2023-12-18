@@ -343,31 +343,6 @@ func TestGet(t *testing.T) {
 		mockFunc func(args) *ProcessController
 	}{
 		{
-			name: "success",
-			args: args{
-				code: "test",
-				uuid: defaultUuid,
-			},
-			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
-				service.On("Get", mock.Anything, args.code, args.uuid, DEFAULT_PAGE, DEFAULT_PAGE_SIZE).
-					Return(ProcessListDTO{
-						{
-							Code: "test",
-							UUID: defaultUuid,
-						},
-					}, nil)
-				return NewProcessController(&service)
-			},
-			wantCode: http.StatusOK,
-			wantResp: ProcessListDTO{
-				{
-					Code: "test",
-					UUID: defaultUuid,
-				},
-			},
-		},
-		{
 			name: "failed - 404",
 			args: args{
 				code: "test",
@@ -396,6 +371,31 @@ func TestGet(t *testing.T) {
 			},
 			wantCode: http.StatusInternalServerError,
 			wantErr:  &CannotGetProcessErrResp,
+		},
+		{
+			name: "success",
+			args: args{
+				code: "test",
+				uuid: defaultUuid,
+			},
+			mockFunc: func(args args) *ProcessController {
+				service := ProcessSrvcMock{}
+				service.On("Get", mock.Anything, args.code, args.uuid, DEFAULT_PAGE, DEFAULT_PAGE_SIZE).
+					Return(ProcessListDTO{
+						{
+							Code: "test",
+							UUID: defaultUuid,
+						},
+					}, nil)
+				return NewProcessController(&service)
+			},
+			wantCode: http.StatusOK,
+			wantResp: ProcessListDTO{
+				{
+					Code: "test",
+					UUID: defaultUuid,
+				},
+			},
 		},
 	}
 
