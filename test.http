@@ -28,6 +28,11 @@ X-Page-Size: 5
 X-Page: 1
 
 
+### Get processes by code - default X-Page zero 
+
+GET http://localhost:3000/api/v1/process/{{code}}/list
+X-Page: 1
+
 ### Move item of process into to status
 
 PATCH http://localhost:3000/api/v1/process/{{code}}/{{uuid}}/assign/created

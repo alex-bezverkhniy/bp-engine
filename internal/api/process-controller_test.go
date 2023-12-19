@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	fiber "github.com/gofiber/fiber/v2"
@@ -168,7 +169,7 @@ func TestGetList(t *testing.T) {
 			},
 			mockFunc: func(args args) *ProcessController {
 				service := ProcessSrvcMock{}
-				service.On("Get", mock.Anything, args.code, "", DEFAULT_PAGE, DEFAULT_PAGE_SIZE).
+				service.On("Get", mock.Anything, args.code, "", DEFAULT_PAGE, 5).
 					Return(nil, ErrProcessNotFound)
 				return NewProcessController(&service)
 			},
@@ -599,6 +600,104 @@ func TestAssignStatus(t *testing.T) {
 				assert.Nil(t, err)
 
 				assert.Equal(t, tt.wantResp.Uuid, gotResp.Uuid)
+			}
+
+		})
+	}
+}
+
+func Test_getHeaderValue(t *testing.T) {
+
+	type args struct {
+		headerKey string
+		defVal    any
+	}
+	tests := []struct {
+		name    string
+		args    args
+		headers map[string][]string
+		wantVal any
+		wantErr error
+	}{
+		{
+			name: "success",
+			args: args{
+				headerKey: HEADERNAME_PAGE,
+				defVal:    strconv.Itoa(DEFAULT_PAGE),
+			},
+			headers: map[string][]string{HEADERNAME_PAGE: []string{"11"}},
+			wantVal: "11",
+		},
+		{
+			name: "success - default val",
+			args: args{
+				headerKey: HEADERNAME_PAGE,
+				defVal:    strconv.Itoa(DEFAULT_PAGE),
+			},
+			wantVal: "1",
+		},
+		{
+			name: "success - default val - int",
+			args: args{
+				headerKey: HEADERNAME_PAGE,
+				defVal:    DEFAULT_PAGE,
+			},
+			wantVal: 1,
+		},
+		{
+			name: "success - default val - float64",
+			args: args{
+				headerKey: HEADERNAME_PAGE,
+				defVal:    1.5,
+			},
+			wantVal: 1.5,
+		},
+		{
+			name: "success - val - float64",
+			args: args{
+				headerKey: HEADERNAME_PAGE,
+				defVal:    1.0,
+			},
+			headers: map[string][]string{HEADERNAME_PAGE: []string{"1.5"}},
+			wantVal: 1.5,
+		},
+		{
+			name: "success - val - int",
+			args: args{
+				headerKey: HEADERNAME_PAGE,
+				defVal:    1,
+			},
+			headers: map[string][]string{HEADERNAME_PAGE: []string{"5"}},
+			wantVal: 5,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			if tt.wantErr != nil {
+				_, gotErr := getHeaderValue(tt.headers, tt.args.headerKey, tt.args.defVal.(string))
+				assert.NotNil(t, gotErr)
+				assert.Equal(t, tt.wantErr.Error(), gotErr.Error())
+			} else {
+				switch tt.wantVal.(type) {
+				case int:
+					var gotVal int
+					gotVal, gotErr := getHeaderValue(tt.headers, tt.args.headerKey, tt.args.defVal.(int))
+					assert.Nil(t, gotErr)
+					assert.Equal(t, tt.wantVal, gotVal)
+				case float64:
+					var gotVal float64
+					gotVal, gotErr := getHeaderValue(tt.headers, tt.args.headerKey, tt.args.defVal.(float64))
+					assert.Nil(t, gotErr)
+					assert.Equal(t, tt.wantVal, gotVal)
+				default:
+					var gotVal string
+					gotVal, gotErr := getHeaderValue(tt.headers, tt.args.headerKey, tt.args.defVal.(string))
+					assert.Nil(t, gotErr)
+					assert.Equal(t, tt.wantVal, gotVal)
+				}
+
 			}
 
 		})
