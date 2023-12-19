@@ -169,7 +169,7 @@ func TestGetList(t *testing.T) {
 			},
 			mockFunc: func(args args) *ProcessController {
 				service := ProcessSrvcMock{}
-				service.On("Get", mock.Anything, args.code, "", DEFAULT_PAGE, DEFAULT_PAGE_SIZE).
+				service.On("Get", mock.Anything, args.code, "", DEFAULT_PAGE, 5).
 					Return(nil, ErrProcessNotFound)
 				return NewProcessController(&service)
 			},

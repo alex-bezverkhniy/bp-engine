@@ -241,7 +241,7 @@ func getHeaderValue[T string | int | float64](headers map[string][]string, key s
 			default: //string
 				val = strVal
 			}
-			return val.(T), nil
+			return val.(T), err
 		}
 		return defaultVal, err
 	}
