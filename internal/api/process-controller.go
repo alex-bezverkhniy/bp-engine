@@ -120,7 +120,7 @@ func (pc *ProcessController) GetList(c *fiber.Ctx) error {
 	var page int
 	var pageSize int
 
-	page, err = getHeaderValue[int](c, HEADERNAME_PAGE, DEFAULT_PAGE)
+	page, err = getHeaderValue[int](c.GetReqHeaders(), HEADERNAME_PAGE, DEFAULT_PAGE)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(NotSupportedValueForPageHdrErrResp)
 	}
@@ -128,7 +128,7 @@ func (pc *ProcessController) GetList(c *fiber.Ctx) error {
 		page = DEFAULT_PAGE
 	}
 
-	pageSize, err = getHeaderValue[int](c, HEADERNAME_PAGE_SIZE, DEFAULT_PAGE_SIZE)
+	pageSize, err = getHeaderValue[int](c.GetReqHeaders(), HEADERNAME_PAGE_SIZE, DEFAULT_PAGE_SIZE)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(NotSupportedValueForPageSizeHdrErrResp)
 	}
@@ -226,8 +226,7 @@ func (pc *ProcessController) AssignStatus(c *fiber.Ctx) error {
 
 }
 
-func getHeaderValue[T string | int | float64](c *fiber.Ctx, key string, defaultVal T) (T, error) {
-	headers := c.GetReqHeaders()
+func getHeaderValue[T string | int | float64](headers map[string][]string, key string, defaultVal T) (T, error) {
 	var err error
 	var val any
 	if headers != nil {
@@ -240,10 +239,11 @@ func getHeaderValue[T string | int | float64](c *fiber.Ctx, key string, defaultV
 			case *float64:
 				val, err = strconv.ParseFloat(strVal, 64)
 			default: //string
-				val = &strVal
+				val = strVal
 			}
+			return val.(T), nil
 		}
-		return val.(T), err
+		return defaultVal, err
 	}
 	return defaultVal, err
 }
