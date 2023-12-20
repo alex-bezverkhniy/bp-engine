@@ -625,7 +625,7 @@ func Test_getHeaderValue(t *testing.T) {
 				headerKey: HEADERNAME_PAGE,
 				defVal:    strconv.Itoa(DEFAULT_PAGE),
 			},
-			headers: map[string][]string{HEADERNAME_PAGE: []string{"11"}},
+			headers: map[string][]string{HEADERNAME_PAGE: {"11"}},
 			wantVal: "11",
 		},
 		{
@@ -658,7 +658,7 @@ func Test_getHeaderValue(t *testing.T) {
 				headerKey: HEADERNAME_PAGE,
 				defVal:    1.0,
 			},
-			headers: map[string][]string{HEADERNAME_PAGE: []string{"1.5"}},
+			headers: map[string][]string{HEADERNAME_PAGE: {"1.5"}},
 			wantVal: 1.5,
 		},
 		{
@@ -667,7 +667,7 @@ func Test_getHeaderValue(t *testing.T) {
 				headerKey: HEADERNAME_PAGE,
 				defVal:    1,
 			},
-			headers: map[string][]string{HEADERNAME_PAGE: []string{"5"}},
+			headers: map[string][]string{HEADERNAME_PAGE: {"5"}},
 			wantVal: 5,
 		},
 	}
