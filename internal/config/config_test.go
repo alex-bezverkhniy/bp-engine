@@ -117,9 +117,9 @@ func Test_LoadConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			conf := Config{}
+			conf := NewConfigBuilder()
 			fr := tt.mockFunc()
-			gotConf, gotErr := conf.LoadConfig(fr)
+			gotConf, gotErr := conf.LoadFromFile(fr)
 
 			if tt.wantErr != nil {
 				assert.NotNil(t, gotErr)

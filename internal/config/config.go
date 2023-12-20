@@ -3,15 +3,19 @@ package config
 import (
 	"encoding/json"
 	"errors"
+	"os"
 )
 
 type (
 	FileReader interface {
 		ReadFile(filePath string) ([]byte, error)
 	}
-
+	osFileReader  struct{}
+	ConfigBuilder struct {
+		filePath string `json:"-"`
+	}
 	Config struct {
-		filePath      string          `json:"-"`
+		Env           string          `json:"-"`
 		DbUrl         string          `json:"db_url"`
 		ProcessConfig []ProcessConfig `json:"processes"`
 	}
@@ -21,10 +25,26 @@ const DEFAULT_CONFIG_FILEPATH = "./config.json"
 
 var ErrConfigFileIsEmpty = errors.New("Config file is empty")
 
-func (c *Config) LoadConfig(fileReader FileReader) (*Config, error) {
+func NewConfigBuilder() *ConfigBuilder {
+	return &ConfigBuilder{
+		filePath: DEFAULT_CONFIG_FILEPATH,
+	}
+}
+
+func (cb *ConfigBuilder) WithConfigFile(filePath string) *ConfigBuilder {
+	cb.filePath = filePath
+	return cb
+}
+
+func (cb *ConfigBuilder) LoadConfig() (*Config, error) {
+	fileReader := osFileReader{}
+	return cb.LoadFromFile(&fileReader)
+}
+
+func (cb *ConfigBuilder) LoadFromFile(fileReader FileReader) (*Config, error) {
 	var conf Config
 
-	content, err := fileReader.ReadFile(c.filePath)
+	content, err := fileReader.ReadFile(cb.filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -39,4 +59,8 @@ func (c *Config) LoadConfig(fileReader FileReader) (*Config, error) {
 	}
 
 	return &conf, nil
+}
+
+func (osfr *osFileReader) ReadFile(filePath string) ([]byte, error) {
+	return os.ReadFile(filePath)
 }
