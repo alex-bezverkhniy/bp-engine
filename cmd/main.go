@@ -3,6 +3,7 @@ package main
 import (
 	"bp-engine/internal/api"
 	"bp-engine/internal/config"
+	"bp-engine/internal/model"
 	"flag"
 	"os"
 
@@ -150,10 +151,10 @@ func loadConfig(filePath, environment string) (*config.Config, error) {
 
 func runDBMigration(db *gorm.DB) []error {
 	var migrationErr []error
-	if dbErr := db.AutoMigrate(&api.Process{}); dbErr != nil {
+	if dbErr := db.AutoMigrate(&model.Process{}); dbErr != nil {
 		migrationErr = append(migrationErr, dbErr)
 	}
-	if dbErr := db.AutoMigrate(&api.ProcessStatus{}); dbErr != nil {
+	if dbErr := db.AutoMigrate(&model.ProcessStatus{}); dbErr != nil {
 		migrationErr = append(migrationErr, dbErr)
 	}
 

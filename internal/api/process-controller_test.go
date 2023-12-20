@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bp-engine/internal/model"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -21,22 +22,22 @@ func TestSubmit(t *testing.T) {
 	defaultUuid := uuid.NewString()
 	// ctx := context.Background()
 	type args struct {
-		reqPayload ProcessDTO
+		reqPayload model.ProcessDTO
 	}
 	tests := []struct {
 		name     string
 		args     args
 		wantCode int
-		wantResp ProcessSubmitResponse
-		wantErr  *ProcessErrorResponse
+		wantResp model.ProcessSubmitResponse
+		wantErr  *model.ProcessErrorResponse
 		mockFunc func(args) *ProcessController
 	}{
 		{
 			name: "fail - 400",
 			args: args{
-				reqPayload: ProcessDTO{
+				reqPayload: model.ProcessDTO{
 					Code: "requests",
-					Payload: Payload{
+					Payload: model.Payload{
 						"sample": "data",
 					},
 				},
@@ -53,9 +54,9 @@ func TestSubmit(t *testing.T) {
 		{
 			name: "fail - 500",
 			args: args{
-				reqPayload: ProcessDTO{
+				reqPayload: model.ProcessDTO{
 					Code: "requests",
-					Payload: Payload{
+					Payload: model.Payload{
 						"sample": "data",
 					},
 				},
@@ -72,9 +73,9 @@ func TestSubmit(t *testing.T) {
 		{
 			name: "success",
 			args: args{
-				reqPayload: ProcessDTO{
+				reqPayload: model.ProcessDTO{
 					Code: "requests",
-					Payload: Payload{
+					Payload: model.Payload{
 						"sample": "data",
 					},
 				},
@@ -86,7 +87,7 @@ func TestSubmit(t *testing.T) {
 				return NewProcessController(&service)
 			},
 			wantCode: http.StatusOK,
-			wantResp: ProcessSubmitResponse{
+			wantResp: model.ProcessSubmitResponse{
 				Uuid: defaultUuid,
 			},
 		},
@@ -126,14 +127,14 @@ func TestSubmit(t *testing.T) {
 			assert.Nil(t, err)
 
 			if tt.wantErr != nil {
-				var gotResp ProcessErrorResponse
+				var gotResp model.ProcessErrorResponse
 				json.Unmarshal(respBody, &gotResp)
 				assert.Nil(t, err)
 
 				assert.Equal(t, *tt.wantErr, gotResp)
 
 			} else {
-				var gotResp ProcessSubmitResponse
+				var gotResp model.ProcessSubmitResponse
 				json.Unmarshal(respBody, &gotResp)
 				assert.Nil(t, err)
 
@@ -157,7 +158,7 @@ func TestGetList(t *testing.T) {
 		args     args
 		wantCode int
 		wantResp PaginatedResponse
-		wantErr  *ProcessErrorResponse
+		wantErr  *model.ProcessErrorResponse
 		mockFunc func(args) *ProcessController
 	}{
 		{
@@ -234,7 +235,7 @@ func TestGetList(t *testing.T) {
 			mockFunc: func(args args) *ProcessController {
 				service := ProcessSrvcMock{}
 				service.On("Get", mock.Anything, args.code, "", 1, 5).
-					Return(ProcessListDTO{
+					Return(model.ProcessListDTO{
 						{
 							Code: "test",
 							UUID: defaultUuid,
@@ -246,7 +247,7 @@ func TestGetList(t *testing.T) {
 			wantResp: PaginatedResponse{
 				Page:     1,
 				PageSize: 5,
-				Data: ProcessListDTO{
+				Data: model.ProcessListDTO{
 					{
 						Code: "test",
 						UUID: defaultUuid,
@@ -264,7 +265,7 @@ func TestGetList(t *testing.T) {
 			mockFunc: func(args args) *ProcessController {
 				service := ProcessSrvcMock{}
 				service.On("Get", mock.Anything, args.code, "", DEFAULT_PAGE, DEFAULT_PAGE_SIZE).
-					Return(ProcessListDTO{
+					Return(model.ProcessListDTO{
 						{
 							Code: "test",
 							UUID: defaultUuid,
@@ -276,7 +277,7 @@ func TestGetList(t *testing.T) {
 			wantResp: PaginatedResponse{
 				Page:     DEFAULT_PAGE,
 				PageSize: DEFAULT_PAGE_SIZE,
-				Data: ProcessListDTO{
+				Data: model.ProcessListDTO{
 					{
 						Code: "test",
 						UUID: defaultUuid,
@@ -307,7 +308,7 @@ func TestGetList(t *testing.T) {
 			assert.Nil(t, err)
 
 			if tt.wantErr != nil {
-				var gotResp ProcessErrorResponse
+				var gotResp model.ProcessErrorResponse
 				json.Unmarshal(body, &gotResp)
 				assert.Nil(t, err)
 
@@ -339,8 +340,8 @@ func TestGet(t *testing.T) {
 		name     string
 		args     args
 		wantCode int
-		wantResp ProcessListDTO
-		wantErr  *ProcessErrorResponse
+		wantResp model.ProcessListDTO
+		wantErr  *model.ProcessErrorResponse
 		mockFunc func(args) *ProcessController
 	}{
 		{
@@ -382,7 +383,7 @@ func TestGet(t *testing.T) {
 			mockFunc: func(args args) *ProcessController {
 				service := ProcessSrvcMock{}
 				service.On("Get", mock.Anything, args.code, args.uuid, DEFAULT_PAGE, DEFAULT_PAGE_SIZE).
-					Return(ProcessListDTO{
+					Return(model.ProcessListDTO{
 						{
 							Code: "test",
 							UUID: defaultUuid,
@@ -391,7 +392,7 @@ func TestGet(t *testing.T) {
 				return NewProcessController(&service)
 			},
 			wantCode: http.StatusOK,
-			wantResp: ProcessListDTO{
+			wantResp: model.ProcessListDTO{
 				{
 					Code: "test",
 					UUID: defaultUuid,
@@ -419,14 +420,14 @@ func TestGet(t *testing.T) {
 			assert.Nil(t, err)
 
 			if tt.wantErr != nil {
-				var gotResp ProcessErrorResponse
+				var gotResp model.ProcessErrorResponse
 				json.Unmarshal(body, &gotResp)
 				assert.Nil(t, err)
 
 				assert.Equal(t, *tt.wantErr, gotResp)
 
 			} else {
-				var gotResp ProcessListDTO
+				var gotResp model.ProcessListDTO
 				json.Unmarshal(body, &gotResp)
 				assert.Nil(t, err)
 
@@ -444,14 +445,14 @@ func TestAssignStatus(t *testing.T) {
 		code       string
 		uuid       string
 		status     string
-		reqPayload ProcessStatusDTO
+		reqPayload model.ProcessStatusDTO
 	}
 	tests := []struct {
 		name     string
 		args     args
 		wantCode int
-		wantResp ProcessSubmitResponse
-		wantErr  *ProcessErrorResponse
+		wantResp model.ProcessSubmitResponse
+		wantErr  *model.ProcessErrorResponse
 		mockFunc func(args) *ProcessController
 	}{
 		{
@@ -460,8 +461,8 @@ func TestAssignStatus(t *testing.T) {
 				code:   "requests",
 				uuid:   defaultUuid,
 				status: "done",
-				reqPayload: ProcessStatusDTO{
-					Payload: Payload{
+				reqPayload: model.ProcessStatusDTO{
+					Payload: model.Payload{
 						"sample": "data",
 					},
 				},
@@ -485,8 +486,8 @@ func TestAssignStatus(t *testing.T) {
 				code:   "requests",
 				uuid:   defaultUuid,
 				status: "done",
-				reqPayload: ProcessStatusDTO{
-					Payload: Payload{
+				reqPayload: model.ProcessStatusDTO{
+					Payload: model.Payload{
 						"sample": "data",
 					},
 				},
@@ -510,8 +511,8 @@ func TestAssignStatus(t *testing.T) {
 				code:   "requests",
 				uuid:   defaultUuid,
 				status: "done",
-				reqPayload: ProcessStatusDTO{
-					Payload: Payload{
+				reqPayload: model.ProcessStatusDTO{
+					Payload: model.Payload{
 						"sample": "data",
 					},
 				},
@@ -535,8 +536,8 @@ func TestAssignStatus(t *testing.T) {
 				code:   "requests",
 				uuid:   defaultUuid,
 				status: "done",
-				reqPayload: ProcessStatusDTO{
-					Payload: Payload{
+				reqPayload: model.ProcessStatusDTO{
+					Payload: model.Payload{
 						"sample": "data",
 					},
 				},
@@ -588,14 +589,14 @@ func TestAssignStatus(t *testing.T) {
 			assert.Nil(t, err)
 
 			if tt.wantErr != nil {
-				var gotResp ProcessErrorResponse
+				var gotResp model.ProcessErrorResponse
 				json.Unmarshal(respBody, &gotResp)
 				assert.Nil(t, err)
 
 				assert.Equal(t, *tt.wantErr, gotResp)
 
 			} else {
-				var gotResp ProcessSubmitResponse
+				var gotResp model.ProcessSubmitResponse
 				json.Unmarshal(respBody, &gotResp)
 				assert.Nil(t, err)
 
