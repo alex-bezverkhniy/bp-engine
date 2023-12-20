@@ -30,8 +30,11 @@ func Test_LoadConfig(t *testing.T) {
 				fr := mockedFileReader{}
 				fr.On("ReadFile", mock.Anything).
 					Return(
-						[]byte(`
+						[]byte(`{
+					"db_url": "gorm.db",
+					"processes": [
 					{
+						"name": "requests",
 						"statuses": [
 							{
 								"name": "open",
@@ -51,14 +54,15 @@ func Test_LoadConfig(t *testing.T) {
 								"name": "rejected"
 							}
 						]
-					}					
+					}]		}
 					`), nil)
 				return &fr
 			},
 			wantConf: &Config{
+				DbUrl: "gorm.db",
 				ProcessConfig: []ProcessConfig{
 					{
-						Name: "test",
+						Name: "requests",
 						Statuses: []StatusConfig{
 							{
 								Name: "open",
@@ -123,6 +127,7 @@ func Test_LoadConfig(t *testing.T) {
 			} else {
 				assert.Nil(t, gotErr)
 				assert.NotNil(t, gotConf)
+				assert.Equal(t, tt.wantConf, gotConf)
 			}
 
 		})

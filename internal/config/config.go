@@ -12,6 +12,7 @@ type (
 
 	Config struct {
 		filePath      string          `json:"-"`
+		DbUrl         string          `json:"db_url"`
 		ProcessConfig []ProcessConfig `json:"processes"`
 	}
 )
