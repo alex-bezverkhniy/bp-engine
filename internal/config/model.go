@@ -11,8 +11,9 @@ type (
 	ProcessConfigList []ProcessConfig
 
 	StatusConfig struct {
-		Name string   `json:"name"`
-		Next []string `json:"next,omitempty"`
+		Name   string   `json:"name"`
+		Next   []string `json:"next,omitempty"`
+		Schema string   `json:"schema,omitempty"`
 	}
 )
 
