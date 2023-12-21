@@ -8,6 +8,9 @@ Content-Type: application/json
 
 {
     "code": "{{code}}",
+    "current_status": {
+        "name": "open"
+    },
     "payload": {
         "sample": "payload"
     }
@@ -35,13 +38,16 @@ X-Page: 1
 
 ### Move item of process into to status
 
-PATCH http://localhost:3000/api/v1/process/{{code}}/{{uuid}}/assign/created
+PATCH http://localhost:3000/api/v1/process/{{code}}/{{uuid}}/assign/in_progress
 Content-Type: application/json
 
 {
     "payload": {
-        "sample": "payload",
-        "moveit": "into created"
+        "data": {
+            "user_name": "alex",
+            "age": 42,
+            "salary": 200000.0
+        }
     }
 }
 
