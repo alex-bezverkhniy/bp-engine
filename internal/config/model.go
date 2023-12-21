@@ -8,6 +8,8 @@ type (
 		Statuses []StatusConfig `json:"statuses"`
 	}
 
+	ProcessConfigList []ProcessConfig
+
 	StatusConfig struct {
 		Name string   `json:"name"`
 		Next []string `json:"next,omitempty"`
@@ -16,10 +18,14 @@ type (
 
 var ErrStatusConfigNotFound = errors.New("status config not found")
 
-func (pc *ProcessConfig) GetStatusConfig(code string) (*StatusConfig, error) {
-	for _, sc := range pc.Statuses {
-		if sc.Name == code {
-			return &sc, nil
+func (pc ProcessConfigList) GetStatusConfig(code, status string) (*StatusConfig, error) {
+	for _, p := range pc {
+		if p.Name == code {
+			for _, sc := range p.Statuses {
+				if sc.Name == status {
+					return &sc, nil
+				}
+			}
 		}
 	}
 	return nil, ErrStatusConfigNotFound
