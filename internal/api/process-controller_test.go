@@ -2,6 +2,7 @@ package api
 
 import (
 	"bp-engine/internal/model"
+	"bp-engine/internal/validators"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -448,15 +449,42 @@ func TestAssignStatus(t *testing.T) {
 		reqPayload model.ProcessStatusDTO
 	}
 	tests := []struct {
-		name     string
-		args     args
-		wantCode int
-		wantResp model.ProcessSubmitResponse
-		wantErr  *model.ProcessErrorResponse
-		mockFunc func(args) *ProcessController
+		name               string
+		args               args
+		wantCode           int
+		simulateBadRequest bool
+		wantResp           model.ProcessSubmitResponse
+		wantErr            *model.ProcessErrorResponse
+		mockFunc           func(args) *ProcessController
 	}{
 		{
 			name: "fail - 400",
+			args: args{
+				code:   "requests",
+				uuid:   defaultUuid,
+				status: "done",
+				reqPayload: model.ProcessStatusDTO{
+					Payload: model.Payload{
+						"sample": "data",
+					},
+				},
+			},
+			simulateBadRequest: true,
+			mockFunc: func(args args) *ProcessController {
+				service := ProcessSrvcMock{}
+				service.On("AssignStatus", mock.Anything,
+					args.code,
+					args.uuid,
+					args.status,
+					&args.reqPayload).
+					Return(nil)
+				return NewProcessController(&service)
+			},
+			wantCode: http.StatusBadRequest,
+			wantErr:  &CannotReadRequestBodyErrResp,
+		},
+		{
+			name: "fail - 400 - not supported status",
 			args: args{
 				code:   "requests",
 				uuid:   defaultUuid,
@@ -473,12 +501,37 @@ func TestAssignStatus(t *testing.T) {
 					args.code,
 					args.uuid,
 					args.status,
-					&args.reqPayload).
-					Return(nil)
+					args.reqPayload.Payload).
+					Return(validators.ErrUnknownStatus)
 				return NewProcessController(&service)
 			},
 			wantCode: http.StatusBadRequest,
-			wantErr:  &CannotReadRequestBodyErrResp,
+			wantErr:  &NotSupportedProcessStatusErrResp,
+		},
+		{
+			name: "fail - 400 - not allowed status",
+			args: args{
+				code:   "requests",
+				uuid:   defaultUuid,
+				status: "done",
+				reqPayload: model.ProcessStatusDTO{
+					Payload: model.Payload{
+						"sample": "data",
+					},
+				},
+			},
+			mockFunc: func(args args) *ProcessController {
+				service := ProcessSrvcMock{}
+				service.On("AssignStatus", mock.Anything,
+					args.code,
+					args.uuid,
+					args.status,
+					args.reqPayload.Payload).
+					Return(validators.ErrNotAllowedStatus)
+				return NewProcessController(&service)
+			},
+			wantCode: http.StatusBadRequest,
+			wantErr:  &NotAllowedProcessStatusErrResp,
 		},
 		{
 			name: "fail - 404",
@@ -567,7 +620,7 @@ func TestAssignStatus(t *testing.T) {
 
 			var data []byte
 			var err error
-			if tt.wantCode == http.StatusBadRequest {
+			if tt.simulateBadRequest {
 				data = []byte("something bad")
 			} else {
 				data, err = json.Marshal(tt.args.reqPayload)

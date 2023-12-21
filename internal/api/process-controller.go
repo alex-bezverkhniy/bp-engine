@@ -2,6 +2,7 @@ package api
 
 import (
 	"bp-engine/internal/model"
+	"bp-engine/internal/validators"
 	"errors"
 	"strconv"
 
@@ -60,6 +61,15 @@ var (
 	NotSupportedValueForPageSizeHdrErrResp = model.ProcessErrorResponse{
 		Status:  "error",
 		Message: "not supported value for " + HEADERNAME_PAGE_SIZE,
+	}
+	NotSupportedProcessStatusErrResp = model.ProcessErrorResponse{
+		Status:  "error",
+		Message: "not supported process status",
+	}
+
+	NotAllowedProcessStatusErrResp = model.ProcessErrorResponse{
+		Status:  "error",
+		Message: "not allowed process status",
 	}
 )
 
@@ -218,6 +228,12 @@ func (pc *ProcessController) AssignStatus(c *fiber.Ctx) error {
 		log.Error("cannot move into new status ", err)
 		if errors.Is(err, ErrProcessNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(ProcessNotFoundErrResp)
+		}
+		if errors.Is(err, validators.ErrUnknownStatus) {
+			return c.Status(fiber.StatusBadRequest).JSON(NotSupportedProcessStatusErrResp)
+		}
+		if errors.Is(err, validators.ErrNotAllowedStatus) {
+			return c.Status(fiber.StatusBadRequest).JSON(NotAllowedProcessStatusErrResp)
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(CannotMoveItIntoNewStatusErrResp)
