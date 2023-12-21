@@ -12,28 +12,28 @@ type (
 	}
 
 	BasicValidator struct {
-		ProcessConfig *config.ProcessConfig
+		conf config.ProcessConfigList
 	}
 )
 
 var ErrUnknownStatus = errors.New("unknown status")
 var ErrNotAllowedStatus = errors.New("not allowed status")
 
-func NewBasicValidator(conf *config.ProcessConfig) Validator {
+func NewBasicValidator(conf []config.ProcessConfig) Validator {
 	return &BasicValidator{
-		ProcessConfig: conf,
+		conf: conf,
 	}
 }
 
 func (bv *BasicValidator) Validate(process model.ProcessDTO, newStatus model.ProcessStatusDTO) error {
 	// Check if status defined
-	_, err := bv.ProcessConfig.GetStatusConfig(newStatus.Name)
+	_, err := bv.conf.GetStatusConfig(process.Code, newStatus.Name)
 	if err != nil {
 		return ErrUnknownStatus
 	}
 
 	// Check current status config
-	currentStatusCfg, err := bv.ProcessConfig.GetStatusConfig(process.CurrentStatus.Name)
+	currentStatusCfg, err := bv.conf.GetStatusConfig(process.Code, process.CurrentStatus.Name)
 	if err != nil {
 		return ErrUnknownStatus
 	}

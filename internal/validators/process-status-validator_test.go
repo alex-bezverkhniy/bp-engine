@@ -9,7 +9,7 @@ import (
 )
 
 func Test_Validate(t *testing.T) {
-	defaultProcessCOnfig := &config.ProcessConfig{
+	defaultProcessConfig := config.ProcessConfigList{{
 		Name: "requests",
 		Statuses: []config.StatusConfig{
 			{
@@ -27,17 +27,17 @@ func Test_Validate(t *testing.T) {
 				Name: "done",
 			},
 		},
-	}
+	}}
 	tests := []struct {
 		name    string
-		conf    *config.ProcessConfig
+		conf    config.ProcessConfigList
 		process model.ProcessDTO
 		status  model.ProcessStatusDTO
 		wantErr error
 	}{
 		{
 			name: "valid - move to next",
-			conf: defaultProcessCOnfig,
+			conf: defaultProcessConfig,
 			process: model.ProcessDTO{
 				Code: "requests",
 				CurrentStatus: &model.ProcessStatusDTO{
@@ -51,7 +51,7 @@ func Test_Validate(t *testing.T) {
 		},
 		{
 			name: "valid - move to prev",
-			conf: defaultProcessCOnfig,
+			conf: defaultProcessConfig,
 			process: model.ProcessDTO{
 				Code: "requests",
 				CurrentStatus: &model.ProcessStatusDTO{
@@ -65,7 +65,7 @@ func Test_Validate(t *testing.T) {
 		},
 		{
 			name: "valid - move to - done",
-			conf: defaultProcessCOnfig,
+			conf: defaultProcessConfig,
 			process: model.ProcessDTO{
 				Code: "requests",
 				CurrentStatus: &model.ProcessStatusDTO{
@@ -79,7 +79,7 @@ func Test_Validate(t *testing.T) {
 		},
 		{
 			name: "valid - move to - rejected",
-			conf: defaultProcessCOnfig,
+			conf: defaultProcessConfig,
 			process: model.ProcessDTO{
 				Code: "requests",
 				CurrentStatus: &model.ProcessStatusDTO{
@@ -93,7 +93,7 @@ func Test_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid - not allowed - unknown",
-			conf: defaultProcessCOnfig,
+			conf: defaultProcessConfig,
 			process: model.ProcessDTO{
 				Code: "requests",
 				CurrentStatus: &model.ProcessStatusDTO{
@@ -107,7 +107,7 @@ func Test_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid - not allowed",
-			conf: defaultProcessCOnfig,
+			conf: defaultProcessConfig,
 			process: model.ProcessDTO{
 				Code: "requests",
 				CurrentStatus: &model.ProcessStatusDTO{

@@ -15,9 +15,9 @@ type (
 		filePath string `json:"-"`
 	}
 	Config struct {
-		Env           string          `json:"-"`
-		DbUrl         string          `json:"db_url"`
-		ProcessConfig []ProcessConfig `json:"processes"`
+		Env           string            `json:"-"`
+		DbUrl         string            `json:"db_url"`
+		ProcessConfig ProcessConfigList `json:"processes"`
 	}
 )
 
