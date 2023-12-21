@@ -14,3 +14,8 @@ func (vm *ValidatorMocked) Validate(process model.ProcessDTO, newStatus model.Pr
 	args := vm.Called(process, newStatus)
 	return args.Error(0)
 }
+
+func (vm *ValidatorMocked) CompileJsonSchema() error {
+	args := vm.Called()
+	return args.Error(0)
+}

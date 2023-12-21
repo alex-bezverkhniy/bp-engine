@@ -5,6 +5,7 @@ import (
 	"bp-engine/internal/validators"
 	"errors"
 	"strconv"
+	"strings"
 
 	fiber "github.com/gofiber/fiber/v2"
 	log "github.com/gofiber/fiber/v2/log"
@@ -234,6 +235,14 @@ func (pc *ProcessController) AssignStatus(c *fiber.Ctx) error {
 		}
 		if errors.Is(err, validators.ErrNotAllowedStatus) {
 			return c.Status(fiber.StatusBadRequest).JSON(NotAllowedProcessStatusErrResp)
+		}
+		if errors.Is(err, validators.ErrPayloadValidation) {
+			return c.Status(fiber.StatusBadRequest).JSON(
+				model.ProcessErrorResponse{
+					Status:  "error",
+					Message: strings.ReplaceAll(err.Error(), "\n", ""),
+				},
+			)
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(CannotMoveItIntoNewStatusErrResp)

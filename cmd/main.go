@@ -62,36 +62,15 @@ func main() {
 	}
 
 	if serveHTTP {
-		app := setupApp(conf, db)
+		validator, err := setupValidator(conf)
+		if err != nil {
+			log.Fatal("cannot setup JSON Schema validator", err)
+		}
+
+		app := setupApp(conf, validator, db)
 		log.Fatal(app.Listen(":3000"))
 	}
 
-	// pathToSwaggerFile := "./docs/swagger.json"
-	// if len(environment) == 0 || environment == "dev" {
-	// 	pathToSwaggerFile = "../docs/swagger.json"
-	// }
-	// cfg := swagger.Config{
-	// 	BasePath: "/",
-	// 	FilePath: pathToSwaggerFile,
-	// 	Path:     "swagger",
-	// 	Title:    "Swagger API Docs",
-	// }
-
-	// app := fiber.New()
-	// app.Use(fiberlogger.New())
-	// app.Use(swagger.New(cfg))
-
-	// processRepository := api.NewProcessRepository(db)
-	// processService := api.NewProcessService(processRepository)
-	// processController := api.NewProcessController(processService)
-
-	// api := app.Group("/api")
-	// v1 := api.Group("/v1")
-
-	// v1.Get("/health", Health)
-	// processController.SetupRouter(v1.Group("/process"))
-
-	// log.Fatal(app.Listen(":3000"))
 }
 
 // @Summary Show the status of server.
@@ -107,7 +86,7 @@ func Health(c *fiber.Ctx) error {
 	})
 }
 
-func setupApp(conf *config.Config, db *gorm.DB) *fiber.App {
+func setupApp(conf *config.Config, validator validators.Validator, db *gorm.DB) *fiber.App {
 	// Swagger config
 	pathToSwaggerFile := "./docs/swagger.json"
 	if len(conf.Env) == 0 || conf.Env == "dev" {
@@ -125,7 +104,6 @@ func setupApp(conf *config.Config, db *gorm.DB) *fiber.App {
 	app.Use(fiberlogger.New())
 	app.Use(swagger.New(cfg))
 
-	validator := validators.NewBasicValidator(conf.ProcessConfig)
 	processRepository := api.NewProcessRepository(db)
 	processService := api.NewProcessService(processRepository, validator)
 	processController := api.NewProcessController(processService)
@@ -161,4 +139,14 @@ func runDBMigration(db *gorm.DB) []error {
 	}
 
 	return migrationErr
+}
+
+func setupValidator(conf *config.Config) (validators.Validator, error) {
+	validator := validators.NewBasicValidator(conf.ProcessConfig)
+	err := validator.CompileJsonSchema()
+
+	if err != nil {
+		return nil, err
+	}
+	return validator, nil
 }
