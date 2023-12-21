@@ -2,6 +2,7 @@ package api
 
 import (
 	"bp-engine/internal/model"
+	"bp-engine/internal/validators"
 	"context"
 
 	"errors"
@@ -17,7 +18,8 @@ type (
 		AssignStatus(ctx context.Context, code string, uuid string, status string, metadata model.Payload) error
 	}
 	ProcessSrvc struct {
-		repo ProcessRepository
+		validator validators.Validator
+		repo      ProcessRepository
 	}
 )
 
@@ -26,9 +28,10 @@ var (
 	ErrCannotCreateProcess error = errors.New("cannot create process")
 )
 
-func NewProcessService(repo ProcessRepository) ProcessService {
+func NewProcessService(repo ProcessRepository, validator validators.Validator) ProcessService {
 	return &ProcessSrvc{
-		repo: repo,
+		validator: validator,
+		repo:      repo,
 	}
 }
 
@@ -73,8 +76,27 @@ func (s *ProcessSrvc) Get(ctx context.Context, code string, uuid string, page in
 	return processes.ToDTO(), nil
 }
 
-func (s *ProcessSrvc) AssignStatus(ctx context.Context, code string, uuid string, status string, metadata model.Payload) error {
-	err := s.repo.SetStatus(ctx, code, uuid, status, datatypes.JSON(metadata.ToBytes()))
+func (s *ProcessSrvc) AssignStatus(ctx context.Context, code string, uuid string, status string, payload model.Payload) error {
+	// Check process exist
+	process, err := s.repo.GetByUUID(ctx, code, uuid)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrProcessNotFound
+		}
+
+		return err
+	}
+	newStatus := model.ProcessStatusDTO{
+		Name:    status,
+		Payload: payload,
+	}
+	// Validate the status
+	err = s.validator.Validate(process.ToDTO(), newStatus)
+	if err != nil {
+		return err
+	}
+
+	err = s.repo.SetStatus(ctx, code, uuid, status, datatypes.JSON(payload.ToBytes()))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ErrProcessNotFound

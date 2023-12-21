@@ -4,6 +4,7 @@ import (
 	"bp-engine/internal/api"
 	"bp-engine/internal/config"
 	"bp-engine/internal/model"
+	"bp-engine/internal/validators"
 	"flag"
 	"os"
 
@@ -124,8 +125,9 @@ func setupApp(conf *config.Config, db *gorm.DB) *fiber.App {
 	app.Use(fiberlogger.New())
 	app.Use(swagger.New(cfg))
 
+	validator := validators.NewBasicValidator(conf.ProcessConfig)
 	processRepository := api.NewProcessRepository(db)
-	processService := api.NewProcessService(processRepository)
+	processService := api.NewProcessService(processRepository, validator)
 	processController := api.NewProcessController(processService)
 
 	api := app.Group("/api")
