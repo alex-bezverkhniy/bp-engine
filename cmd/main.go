@@ -3,6 +3,8 @@ package main
 import (
 	"bp-engine/internal/api"
 	"bp-engine/internal/config"
+	"bp-engine/internal/model"
+	"bp-engine/internal/validators"
 	"flag"
 	"os"
 
@@ -123,8 +125,9 @@ func setupApp(conf *config.Config, db *gorm.DB) *fiber.App {
 	app.Use(fiberlogger.New())
 	app.Use(swagger.New(cfg))
 
+	validator := validators.NewBasicValidator(conf.ProcessConfig)
 	processRepository := api.NewProcessRepository(db)
-	processService := api.NewProcessService(processRepository)
+	processService := api.NewProcessService(processRepository, validator)
 	processController := api.NewProcessController(processService)
 
 	api := app.Group("/api")
@@ -150,10 +153,10 @@ func loadConfig(filePath, environment string) (*config.Config, error) {
 
 func runDBMigration(db *gorm.DB) []error {
 	var migrationErr []error
-	if dbErr := db.AutoMigrate(&api.Process{}); dbErr != nil {
+	if dbErr := db.AutoMigrate(&model.Process{}); dbErr != nil {
 		migrationErr = append(migrationErr, dbErr)
 	}
-	if dbErr := db.AutoMigrate(&api.ProcessStatus{}); dbErr != nil {
+	if dbErr := db.AutoMigrate(&model.ProcessStatus{}); dbErr != nil {
 		migrationErr = append(migrationErr, dbErr)
 	}
 

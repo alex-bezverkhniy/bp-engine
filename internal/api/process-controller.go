@@ -1,6 +1,8 @@
 package api
 
 import (
+	"bp-engine/internal/model"
+	"bp-engine/internal/validators"
 	"errors"
 	"strconv"
 
@@ -15,9 +17,9 @@ const (
 
 type (
 	PaginatedResponse struct {
-		Data     ProcessListDTO `json:"data"`
-		Page     int            `json:"page"`
-		PageSize int            `json:"page_size"`
+		Data     model.ProcessListDTO `json:"data"`
+		Page     int                  `json:"page"`
+		PageSize int                  `json:"page_size"`
 	}
 
 	ProcessController struct {
@@ -26,39 +28,48 @@ type (
 )
 
 var (
-	ProcessNotFoundErrResp = ProcessErrorResponse{
+	ProcessNotFoundErrResp = model.ProcessErrorResponse{
 		Status:  "error",
 		Message: "process not found",
 	}
 
-	CannotGetProcessErrResp = ProcessErrorResponse{
+	CannotGetProcessErrResp = model.ProcessErrorResponse{
 		Status:  "error",
 		Message: "cannot get process by UUID",
 	}
 
-	CannotGetListProcessErrResp = ProcessErrorResponse{
+	CannotGetListProcessErrResp = model.ProcessErrorResponse{
 		Status:  "error",
 		Message: "cannot get processes list by code",
 	}
-	CannotReadRequestBodyErrResp = ProcessErrorResponse{
+	CannotReadRequestBodyErrResp = model.ProcessErrorResponse{
 		Status:  "error",
 		Message: "cannot read request body",
 	}
-	CannotCreateNewProcessErrResp = ProcessErrorResponse{
+	CannotCreateNewProcessErrResp = model.ProcessErrorResponse{
 		Status:  "error",
 		Message: "cannot create new process",
 	}
-	CannotMoveItIntoNewStatusErrResp = ProcessErrorResponse{
+	CannotMoveItIntoNewStatusErrResp = model.ProcessErrorResponse{
 		Status:  "error",
 		Message: "cannot move into new status",
 	}
-	NotSupportedValueForPageHdrErrResp = ProcessErrorResponse{
+	NotSupportedValueForPageHdrErrResp = model.ProcessErrorResponse{
 		Status:  "error",
 		Message: "not supported value for " + HEADERNAME_PAGE,
 	}
-	NotSupportedValueForPageSizeHdrErrResp = ProcessErrorResponse{
+	NotSupportedValueForPageSizeHdrErrResp = model.ProcessErrorResponse{
 		Status:  "error",
 		Message: "not supported value for " + HEADERNAME_PAGE_SIZE,
+	}
+	NotSupportedProcessStatusErrResp = model.ProcessErrorResponse{
+		Status:  "error",
+		Message: "not supported process status",
+	}
+
+	NotAllowedProcessStatusErrResp = model.ProcessErrorResponse{
+		Status:  "error",
+		Message: "not allowed process status",
 	}
 )
 
@@ -84,7 +95,7 @@ func (pc *ProcessController) SetupRouter(router fiber.Router) {
 // @Success 200 {object} ProcessSubmitResponse
 // @Router /api/v1/process/ [post]
 func (pc *ProcessController) Submit(c *fiber.Ctx) error {
-	var process ProcessDTO
+	var process model.ProcessDTO
 	err := c.BodyParser(&process)
 	if err != nil {
 		log.Error("cannot read request body ", err)
@@ -98,7 +109,7 @@ func (pc *ProcessController) Submit(c *fiber.Ctx) error {
 		log.Error("cannot create new process ", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(CannotCreateNewProcessErrResp)
 	}
-	res := ProcessSubmitResponse{
+	res := model.ProcessSubmitResponse{
 		Uuid: uuid,
 	}
 	return c.Status(fiber.StatusOK).JSON(res)
@@ -200,8 +211,9 @@ func (pc *ProcessController) AssignStatus(c *fiber.Ctx) error {
 	code := c.Params("code")
 	uuid := c.Params("uuid")
 	status := c.Params("status")
+	ctx := c.Context()
 
-	var processStatus ProcessStatusDTO
+	var processStatus model.ProcessStatusDTO
 	err := c.BodyParser(&processStatus)
 	if err != nil {
 		log.Error("cannot read request body ", err)
@@ -211,11 +223,17 @@ func (pc *ProcessController) AssignStatus(c *fiber.Ctx) error {
 	log.Info("get process by uuid: ", uuid)
 	log.Info("move it to: ", status)
 
-	err = pc.service.AssignStatus(c.Context(), code, uuid, status, processStatus.Payload)
+	err = pc.service.AssignStatus(ctx, code, uuid, status, processStatus.Payload)
 	if err != nil {
 		log.Error("cannot move into new status ", err)
 		if errors.Is(err, ErrProcessNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(ProcessNotFoundErrResp)
+		}
+		if errors.Is(err, validators.ErrUnknownStatus) {
+			return c.Status(fiber.StatusBadRequest).JSON(NotSupportedProcessStatusErrResp)
+		}
+		if errors.Is(err, validators.ErrNotAllowedStatus) {
+			return c.Status(fiber.StatusBadRequest).JSON(NotAllowedProcessStatusErrResp)
 		}
 
 		return c.Status(fiber.StatusInternalServerError).JSON(CannotMoveItIntoNewStatusErrResp)

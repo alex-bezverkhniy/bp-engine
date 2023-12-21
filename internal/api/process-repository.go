@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bp-engine/internal/model"
 	"context"
 
 	"github.com/google/uuid"
@@ -15,9 +16,9 @@ const (
 
 type (
 	ProcessRepository interface {
-		Create(ctx context.Context, process *Process) (string, error)
-		GetByUUID(ctx context.Context, code string, uuid string) (*Process, error)
-		GetByCode(ctx context.Context, code string, page int, pageSize int) ([]Process, error)
+		Create(ctx context.Context, process *model.Process) (string, error)
+		GetByUUID(ctx context.Context, code string, uuid string) (*model.Process, error)
+		GetByCode(ctx context.Context, code string, page int, pageSize int) ([]model.Process, error)
 		SetStatus(ctx context.Context, code string, uuid string, status string, metadata datatypes.JSON) error
 	}
 	ProcessRepo struct {
@@ -31,7 +32,7 @@ func NewProcessRepository(db *gorm.DB) ProcessRepository {
 	}
 }
 
-func (r *ProcessRepo) Create(ctx context.Context, process *Process) (string, error) {
+func (r *ProcessRepo) Create(ctx context.Context, process *model.Process) (string, error) {
 
 	if len(process.UUID) == 0 {
 		process.UUID = uuid.NewString()
@@ -44,10 +45,10 @@ func (r *ProcessRepo) Create(ctx context.Context, process *Process) (string, err
 	return process.UUID, nil
 }
 
-func (r *ProcessRepo) GetByUUID(ctx context.Context, code string, uuid string) (*Process, error) {
-	var process Process
+func (r *ProcessRepo) GetByUUID(ctx context.Context, code string, uuid string) (*model.Process, error) {
+	var process model.Process
 	err := r.db.WithContext(ctx).
-		Model(&Process{}).
+		Model(&model.Process{}).
 		Preload("CurrentStatus", func(db *gorm.DB) *gorm.DB {
 			return db.Order("created_at ASC")
 		}).
@@ -60,14 +61,14 @@ func (r *ProcessRepo) GetByUUID(ctx context.Context, code string, uuid string) (
 	return &process, err
 }
 
-func (r *ProcessRepo) GetByCode(ctx context.Context, code string, page int, pageSize int) ([]Process, error) {
+func (r *ProcessRepo) GetByCode(ctx context.Context, code string, page int, pageSize int) ([]model.Process, error) {
 	offset := (page - 1) * pageSize
 
-	var processes []Process
+	var processes []model.Process
 	err := r.db.WithContext(ctx).
 		Offset(offset).
 		Limit(pageSize).
-		Model(&Process{}).
+		Model(&model.Process{}).
 		Preload("Statuses").
 		Find(&processes, "code = ?", code).Error
 	if err != nil {
@@ -88,20 +89,20 @@ func (r *ProcessRepo) SetStatus(ctx context.Context, code string, uuid string, s
 		return err
 	}
 
-	newStatus := &ProcessStatus{
+	newStatus := &model.ProcessStatus{
 		ProcessID: process.ID,
 		Name:      status,
 		Payload:   metadata,
 	}
 
-	err = r.db.WithContext(ctx).Model(&ProcessStatus{}).Save(&newStatus).Error
+	err = r.db.WithContext(ctx).Model(&model.ProcessStatus{}).Save(&newStatus).Error
 	if err != nil {
 		return err
 	}
 
 	// process.Statuses = append(process.Statuses, *newStatus)
 	return r.db.WithContext(ctx).
-		Model(&Process{}).
+		Model(&model.Process{}).
 		Where("id = ?", process.ID).
 		Association("Statuses").
 		Append(&newStatus)

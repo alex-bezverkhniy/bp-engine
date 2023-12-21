@@ -1,4 +1,4 @@
-package api
+package model
 
 import (
 	"encoding/json"
@@ -42,27 +42,27 @@ type (
 	}
 )
 
-func (p *ProcessDTO) toEntity() *Process {
+func (p *ProcessDTO) ToEntity() *Process {
 	var statuses ProcessStatusList
 	if len(p.Statuses) > 0 {
-		statuses = p.Statuses.toEntity()
+		statuses = p.Statuses.ToEntity()
 	}
 
 	var curentStatus ProcessStatus
 	if p.CurrentStatus != nil {
-		curentStatus = p.CurrentStatus.toEntity()
+		curentStatus = p.CurrentStatus.ToEntity()
 	}
 
 	return &Process{
 		UUID:          p.UUID,
 		Code:          p.Code,
-		Payload:       p.Payload.toBytes(),
+		Payload:       p.Payload.ToBytes(),
 		CurrentStatus: curentStatus,
 		Statuses:      statuses,
 	}
 }
 
-func (p *ProcessStatusDTO) toEntity() ProcessStatus {
+func (p *ProcessStatusDTO) ToEntity() ProcessStatus {
 	metadata := datatypes.JSON{}
 	metadata.Scan(p.Payload)
 	return ProcessStatus{
@@ -71,16 +71,16 @@ func (p *ProcessStatusDTO) toEntity() ProcessStatus {
 	}
 }
 
-func (pp ProcessStatusListDTO) toEntity() ProcessStatusList {
+func (pp ProcessStatusListDTO) ToEntity() ProcessStatusList {
 	res := ProcessStatusList{}
 	for _, p := range pp {
-		res = append(res, p.toEntity())
+		res = append(res, p.ToEntity())
 	}
 
 	return res
 }
 
-func (m Payload) toBytes() []byte {
+func (m Payload) ToBytes() []byte {
 	bytes, _ := json.Marshal(m)
 	return bytes
 }

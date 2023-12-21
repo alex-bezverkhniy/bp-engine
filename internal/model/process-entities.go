@@ -1,4 +1,4 @@
-package api
+package model
 
 import (
 	"encoding/json"
@@ -29,48 +29,48 @@ type (
 	}
 )
 
-func (p *Process) toDTO() ProcessDTO {
+func (p *Process) ToDTO() ProcessDTO {
 	var status *ProcessStatusDTO
 	if len(p.CurrentStatus.Name) > 0 {
-		status = p.CurrentStatus.toDTO()
+		status = p.CurrentStatus.ToDTO()
 	}
 	return ProcessDTO{
 		UUID:          p.UUID,
 		Code:          p.Code,
-		Payload:       toPayloadDTO(p.Payload),
+		Payload:       ToDTO(p.Payload),
 		CurrentStatus: status,
-		Statuses:      p.Statuses.toDTO(),
+		Statuses:      p.Statuses.ToDTO(),
 		CreatedAt:     &p.CreatedAt,
 		ChangedAt:     &p.UpdatedAt,
 	}
 }
 
-func (p *ProcessStatus) toDTO() *ProcessStatusDTO {
+func (p *ProcessStatus) ToDTO() *ProcessStatusDTO {
 	return &ProcessStatusDTO{
 		Name:      p.Name,
-		Payload:   toPayloadDTO(p.Payload),
+		Payload:   ToDTO(p.Payload),
 		CreatedAt: &p.CreatedAt,
 	}
 }
 
-func (pp ProcessStatusList) toDTO() ProcessStatusListDTO {
+func (pp ProcessStatusList) ToDTO() ProcessStatusListDTO {
 	res := ProcessStatusListDTO{}
 	for _, p := range pp {
-		res = append(res, *p.toDTO())
+		res = append(res, *p.ToDTO())
 	}
 
 	return res
 }
 
-func (pl ProcessList) toDTO() ProcessListDTO {
+func (pl ProcessList) ToDTO() ProcessListDTO {
 	res := ProcessListDTO{}
 	for _, p := range pl {
-		res = append(res, p.toDTO())
+		res = append(res, p.ToDTO())
 	}
 	return res
 }
 
-func toPayloadDTO(d datatypes.JSON) Payload {
+func ToDTO(d datatypes.JSON) Payload {
 	val := d.String()
 	var payload Payload
 	if len(val) > 0 {
