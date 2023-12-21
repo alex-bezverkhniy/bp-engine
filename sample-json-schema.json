@@ -1,3 +1,0 @@
-//{\"$schema\": \"http://json-schema.org/draft-04/schema#\",\"type\": \"object\",\"properties\": {\"user_name\": {\"type\": \"string\"},\"age\": {\"type\": \"integer\"},\"salary\": {\"type\": \"number\"}},\"required\": [\"user_name\",\"age\",\"salary\"]}
-
-{"$schema": "http://json-schema.org/draft-04/schema#","type": "object","properties": {"user_name": {"type": "string"},"age": {"type": "integer"},"salary": {"type": "number"}},"required": ["user_name","age","salary"]}
