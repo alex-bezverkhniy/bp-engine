@@ -1,0 +1,29 @@
+{
+    "db_url": "./example/gorm.db",
+    "processes": [
+        {
+            "name": "requests",
+            "statuses": [
+                {
+                    "name": "open",
+                    "next": [
+                        "in_progress",
+                        "rejected"
+                    ]                    
+                },
+                {
+                    "name": "in_progress",
+                    "next": [
+                        "open",
+                        "rejected",
+                        "in_progress"
+                    ],
+                    "schema": "{\"$schema\": \"http://json-schema.org/draft-04/schema#\",\"type\": \"object\",\"properties\": {\"user_name\": {\"type\": \"string\", \"minLength\": 3, \"maxLength\": 25},\"age\": {\"type\": \"integer\"},\"salary\": {\"type\": \"number\"}},\"required\": [\"user_name\",\"age\",\"salary\"]}"
+                },
+                {
+                    "name": "rejected"
+                }
+            ]
+        }
+    ]
+}
