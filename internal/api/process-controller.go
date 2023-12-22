@@ -1,11 +1,12 @@
 package api
 
 import (
-	"bp-engine/internal/model"
-	"bp-engine/internal/validators"
 	"errors"
 	"strconv"
 	"strings"
+
+	"github.com/alex-bezverkhniy/bp-engine/internal/model"
+	"github.com/alex-bezverkhniy/bp-engine/internal/validators"
 
 	fiber "github.com/gofiber/fiber/v2"
 	log "github.com/gofiber/fiber/v2/log"

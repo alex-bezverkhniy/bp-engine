@@ -1,14 +1,15 @@
 package bpengine
 
 import (
-	"bp-engine/internal/api"
-	"bp-engine/internal/config"
-	"bp-engine/internal/model"
-	"bp-engine/internal/validators"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/alex-bezverkhniy/bp-engine/internal/api"
+	"github.com/alex-bezverkhniy/bp-engine/internal/config"
+	"github.com/alex-bezverkhniy/bp-engine/internal/model"
+	"github.com/alex-bezverkhniy/bp-engine/internal/validators"
 
 	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
@@ -44,7 +45,7 @@ func New(config config.Config) (*Engine, error) {
 
 func (e *Engine) InitDefault() error {
 	// Setup Swagger with default config
-	if err := e.SetupSwagger(swagger.Config{}); err != nil {
+	if err := e.SetupSwagger(""); err != nil {
 		return err
 	}
 
@@ -79,26 +80,25 @@ func (e *Engine) ListenTLS(addr, certFile, keyFile string) error {
 	return e.app.ListenTLS(addr, certFile, keyFile)
 }
 
-func (e *Engine) SetupSwagger(cfg swagger.Config) error {
+func (e *Engine) SetupSwagger(pathToSwaggerFile string) error {
 	if e.app == nil {
 		return ErrAppIsNotInitialized
 	}
 	// default swagger config
-	if len(cfg.FilePath) <= 0 && len(cfg.Path) <= 0 && len(cfg.Title) <= 0 {
+	if len(pathToSwaggerFile) <= 0 {
 		// Swagger config
-		pathToSwaggerFile := "./docs/swagger.json"
+		pathToSwaggerFile = "./internal/docs/swagger.json"
 		if len(e.config.Env) == 0 || e.config.Env == "dev" {
-			pathToSwaggerFile = "../docs/swagger.json"
-		}
-		cfg = swagger.Config{
-			BasePath: "/",
-			FilePath: pathToSwaggerFile,
-			Path:     "swagger",
-			Title:    "Swagger API Docs",
+			pathToSwaggerFile = "../internal/docs/swagger.json"
 		}
 	}
 
-	e.app.Use(swagger.New(cfg))
+	if len(e.config.SwaggerConfig.Path) <= 0 {
+		e.config.SwaggerConfig.Path = "swagger"
+	}
+
+	e.config.SwaggerConfig.FilePath = pathToSwaggerFile
+	e.app.Use(swagger.New(e.config.SwaggerConfig))
 
 	return nil
 }
@@ -117,7 +117,7 @@ func (e *Engine) SetupDB(cfg config.Config) error {
 				return err
 			}
 
-			cfg.DbUrl = fmt.Sprintf("%s%c%s", dir, os.PathSeparator, "bp-engine.db")
+			cfg.DbUrl = fmt.Sprintf("%s%c%s", dir, os.PathSeparator, "github.com/alex-bezverkhniy/bp-engine.db")
 		}
 
 		e.db, err = gorm.Open(sqlite.Open(cfg.DbUrl), &gorm.Config{})

@@ -1,8 +1,6 @@
 package api
 
 import (
-	"bp-engine/internal/model"
-	"bp-engine/internal/validators"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -12,6 +10,9 @@ import (
 	"net/http/httptest"
 	"strconv"
 	"testing"
+
+	"github.com/alex-bezverkhniy/bp-engine/internal/model"
+	"github.com/alex-bezverkhniy/bp-engine/internal/validators"
 
 	fiber "github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"

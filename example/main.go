@@ -1,10 +1,11 @@
 package main
 
 import (
-	bpengine "bp-engine"
 	"flag"
 	"log"
 	"os"
+
+	bpengine "github.com/alex-bezverkhniy/bp-engine"
 )
 
 // @title Example Business Process Engine API
