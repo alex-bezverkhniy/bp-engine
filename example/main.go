@@ -32,6 +32,8 @@ func main() {
 		log.Fatal("cannot engine config: ", err)
 	}
 
+	cfg.SwaggerConfig.Title = "Example API"
+
 	engine, err := bpengine.New(cfg)
 	if err != nil {
 		log.Fatal("cannot create new engine: ", err)
