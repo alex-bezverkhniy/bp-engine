@@ -5,6 +5,12 @@
 # @name checkHealth
 GET http://localhost:3000/api/v1/health
 
+
+### Check custom endpoint
+# @name checkHealth
+GET http://localhost:3000/test
+
+
 ### Create new process
 # @name createProcess
 POST http://localhost:3000/api/v1/process

@@ -6,6 +6,7 @@ import (
 	"os"
 
 	bpengine "github.com/alex-bezverkhniy/bp-engine"
+	"github.com/gofiber/fiber/v2"
 )
 
 // @title Example Business Process Engine API
@@ -42,6 +43,13 @@ func main() {
 	if err != nil {
 		log.Fatal("cannot create new engine: ", err)
 	}
+
+	// Add custom route
+	engine.App.Get("/test", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"test": "OK",
+		})
+	})
 
 	if migrateDB {
 		if err := engine.SetupDB(cfg); err != nil {

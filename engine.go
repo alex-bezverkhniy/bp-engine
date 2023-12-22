@@ -26,7 +26,7 @@ var (
 
 type Engine struct {
 	config    config.Config
-	app       *fiber.App
+	App       *fiber.App
 	db        *gorm.DB
 	validator validators.Validator
 }
@@ -37,8 +37,8 @@ func New(config config.Config) (*Engine, error) {
 	}
 
 	// Fiber App init
-	engine.app = fiber.New()
-	engine.app.Use(logger.New())
+	engine.App = fiber.New()
+	engine.App.Use(logger.New())
 
 	return engine, nil
 }
@@ -70,18 +70,18 @@ func (e *Engine) Listen(addr string) error {
 	if err := e.checkEngineInitialized(); err != nil {
 		return err
 	}
-	return e.app.Listen(addr)
+	return e.App.Listen(addr)
 }
 
 func (e *Engine) ListenTLS(addr, certFile, keyFile string) error {
 	if err := e.checkEngineInitialized(); err != nil {
 		return err
 	}
-	return e.app.ListenTLS(addr, certFile, keyFile)
+	return e.App.ListenTLS(addr, certFile, keyFile)
 }
 
 func (e *Engine) SetupSwagger(pathToSwaggerFile string) error {
-	if e.app == nil {
+	if e.App == nil {
 		return ErrAppIsNotInitialized
 	}
 	// default swagger config
@@ -98,7 +98,7 @@ func (e *Engine) SetupSwagger(pathToSwaggerFile string) error {
 	}
 
 	e.config.SwaggerConfig.FilePath = pathToSwaggerFile
-	e.app.Use(swagger.New(e.config.SwaggerConfig))
+	e.App.Use(swagger.New(e.config.SwaggerConfig))
 
 	return nil
 }
@@ -179,7 +179,7 @@ func (e *Engine) SetupApi() error {
 	processService := api.NewProcessService(processRepository, e.validator)
 	processController := api.NewProcessController(processService)
 
-	api := e.app.Group("/api")
+	api := e.App.Group("/api")
 	v1 := api.Group("/v1")
 
 	v1.Get("/health", Health)
@@ -189,7 +189,7 @@ func (e *Engine) SetupApi() error {
 }
 
 func (e *Engine) checkEngineInitialized() error {
-	if e.app == nil {
+	if e.App == nil {
 		return ErrAppIsNotInitialized
 	}
 	if e.db == nil {
