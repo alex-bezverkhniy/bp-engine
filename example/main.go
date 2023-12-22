@@ -21,6 +21,8 @@ import (
 func main() {
 	env := os.Getenv("ENV")
 	confFilePath := os.Getenv("CONFIG_FILE")
+	dbURL := os.Getenv("DB_URL")
+
 	migrateDbFlag := flag.Bool("migrate", false, "run DB migration scripts")
 	serveFlag := flag.Bool("serve", true, "run http server")
 
@@ -33,6 +35,7 @@ func main() {
 		log.Fatal("cannot engine config: ", err)
 	}
 
+	cfg.DbUrl = dbURL
 	cfg.SwaggerConfig.Title = "Example API"
 
 	engine, err := bpengine.New(cfg)
