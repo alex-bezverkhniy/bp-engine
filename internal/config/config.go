@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+
+	"github.com/gofiber/contrib/swagger"
 )
 
 type (
@@ -16,8 +18,10 @@ type (
 	}
 	Config struct {
 		Env           string            `json:"-"`
+		DbEngine      string            `json:"db_engine,omitempty"`
 		DbUrl         string            `json:"db_url"`
 		ProcessConfig ProcessConfigList `json:"processes"`
+		SwaggerConfig swagger.Config    `json:"swagger_config:omitempty"`
 	}
 )
 

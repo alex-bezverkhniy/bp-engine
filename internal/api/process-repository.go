@@ -1,8 +1,9 @@
 package api
 
 import (
-	"bp-engine/internal/model"
 	"context"
+
+	"github.com/alex-bezverkhniy/bp-engine/internal/model"
 
 	"github.com/google/uuid"
 	"gorm.io/datatypes"

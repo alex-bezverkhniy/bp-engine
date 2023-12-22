@@ -1,9 +1,10 @@
 package validators
 
 import (
-	"bp-engine/internal/config"
-	"bp-engine/internal/model"
 	"testing"
+
+	"github.com/alex-bezverkhniy/bp-engine/internal/config"
+	"github.com/alex-bezverkhniy/bp-engine/internal/model"
 
 	"github.com/stretchr/testify/assert"
 )

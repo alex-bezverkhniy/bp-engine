@@ -1,7 +1,7 @@
 package validators
 
 import (
-	"bp-engine/internal/model"
+	"github.com/alex-bezverkhniy/bp-engine/internal/model"
 
 	"github.com/stretchr/testify/mock"
 )

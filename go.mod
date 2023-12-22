@@ -1,4 +1,4 @@
-module bp-engine
+module github.com/alex-bezverkhniy/bp-engine
 
 go 1.20
 

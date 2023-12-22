@@ -1,9 +1,10 @@
 package api
 
 import (
-	"bp-engine/internal/model"
-	"bp-engine/internal/validators"
 	"context"
+
+	"github.com/alex-bezverkhniy/bp-engine/internal/model"
+	"github.com/alex-bezverkhniy/bp-engine/internal/validators"
 
 	"errors"
 

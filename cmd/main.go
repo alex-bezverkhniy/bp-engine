@@ -1,12 +1,13 @@
 package main
 
 import (
-	"bp-engine/internal/api"
-	"bp-engine/internal/config"
-	"bp-engine/internal/model"
-	"bp-engine/internal/validators"
 	"flag"
 	"os"
+
+	"github.com/alex-bezverkhniy/bp-engine/internal/api"
+	"github.com/alex-bezverkhniy/bp-engine/internal/config"
+	"github.com/alex-bezverkhniy/bp-engine/internal/model"
+	"github.com/alex-bezverkhniy/bp-engine/internal/validators"
 
 	"github.com/gofiber/contrib/swagger"
 	fiber "github.com/gofiber/fiber/v2"

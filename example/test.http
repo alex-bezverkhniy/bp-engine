@@ -1,6 +1,16 @@
 @uuid = ""
 @code = requests
 
+### Check health
+# @name checkHealth
+GET http://localhost:3000/api/v1/health
+
+
+### Check custom endpoint
+# @name checkHealth
+GET http://localhost:3000/test
+
+
 ### Create new process
 # @name createProcess
 POST http://localhost:3000/api/v1/process
@@ -21,7 +31,7 @@ Content-Type: application/json
 
 
 ### Get p1rocess by UUID
-
+ 
 GET http://localhost:3000/api/v1/process/{{code}}/{{uuid}}
 
 ### Get processes by code

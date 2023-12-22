@@ -1,0 +1,15 @@
+basePath: /
+host: localhost:3000
+info:
+  contact:
+    email: alexander.bezverkhniy@gmail.com
+    name: Alex Bezverkhniy
+  description: This is an example of the Business Process Engine API
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Example Business Process Engine API
+  version: "1.0"
+paths: {}
+swagger: "2.0"

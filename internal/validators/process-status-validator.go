@@ -1,12 +1,13 @@
 package validators
 
 import (
-	"bp-engine/internal/config"
-	"bp-engine/internal/model"
 	"errors"
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/alex-bezverkhniy/bp-engine/internal/config"
+	"github.com/alex-bezverkhniy/bp-engine/internal/model"
 
 	"github.com/santhosh-tekuri/jsonschema/v5"
 )
@@ -25,7 +26,7 @@ type (
 
 var ErrUnknownStatus = errors.New("unknown status")
 var ErrNotAllowedStatus = errors.New("not allowed status")
-var ErrPayloadValidation = errors.New("payload validation error:")
+var ErrPayloadValidation = errors.New("payload validation error: ")
 
 func NewBasicValidator(conf []config.ProcessConfig) Validator {
 	return &BasicValidator{
@@ -100,14 +101,10 @@ func (bv *BasicValidator) CompileJsonSchema() error {
 func (bv *BasicValidator) schemaKey(processName, statusName string) string {
 	return fmt.Sprintf("%s-%s", processName, statusName)
 }
-func (bv *BasicValidator) schemaResName(processName, statusName string) string {
-	return fmt.Sprintf("%s.json", bv.schemaKey(processName, statusName))
-}
 
 func (bv *BasicValidator) formatErrMsg(srcErr error) error {
 	var re = regexp.MustCompile(`^jsonschema:(.*)(file:\/\/(.*):)(.*)$`)
 
 	msg := re.ReplaceAllString(srcErr.Error(), `$1 JSON Schema:$4`)
-	strings.Trim(msg, " ")
-	return errors.New(msg)
+	return errors.New(strings.Trim(msg, " "))
 }
