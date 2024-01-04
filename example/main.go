@@ -51,6 +51,9 @@ func main() {
 		})
 	})
 
+	// Static route
+	engine.App.Static("/", "./public")
+
 	if migrateDB {
 		if err := engine.SetupDB(cfg); err != nil {
 			log.Fatal("cannot setup engine db: ", err)
