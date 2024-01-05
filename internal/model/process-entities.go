@@ -29,7 +29,7 @@ type (
 	}
 )
 
-func (p *Process) ToDTO() ProcessDTO {
+func (p Process) ToDTO() ProcessDTO {
 	var status *ProcessStatusDTO
 	if len(p.CurrentStatus.Name) > 0 {
 		status = p.CurrentStatus.ToDTO()
