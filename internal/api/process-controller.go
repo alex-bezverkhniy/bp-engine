@@ -6,7 +6,10 @@ import (
 	"strings"
 
 	"github.com/alex-bezverkhniy/bp-engine/internal/model"
-	"github.com/alex-bezverkhniy/bp-engine/internal/validators"
+	"github.com/alex-bezverkhniy/bp-engine/internal/services"
+	"github.com/alex-bezverkhniy/bp-engine/pkg/engine"
+	"github.com/alex-bezverkhniy/bp-engine/pkg/engine/config"
+	"github.com/alex-bezverkhniy/bp-engine/pkg/engine/validators"
 
 	fiber "github.com/gofiber/fiber/v2"
 	log "github.com/gofiber/fiber/v2/log"
@@ -25,7 +28,7 @@ type (
 	}
 
 	ProcessController struct {
-		service ProcessService
+		service services.ProcessService
 	}
 )
 
@@ -75,7 +78,7 @@ var (
 	}
 )
 
-func NewProcessController(service ProcessService) *ProcessController {
+func NewProcessController(service services.ProcessService) *ProcessController {
 	return &ProcessController{
 		service: service,
 	}
@@ -133,20 +136,20 @@ func (pc *ProcessController) GetList(c *fiber.Ctx) error {
 	var page int
 	var pageSize int
 
-	page, err = getHeaderValue[int](c.GetReqHeaders(), HEADERNAME_PAGE, DEFAULT_PAGE)
+	page, err = getHeaderValue[int](c.GetReqHeaders(), HEADERNAME_PAGE, config.DEFAULT_PAGE)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(NotSupportedValueForPageHdrErrResp)
 	}
 	if page == 0 {
-		page = DEFAULT_PAGE
+		page = config.DEFAULT_PAGE
 	}
 
-	pageSize, err = getHeaderValue[int](c.GetReqHeaders(), HEADERNAME_PAGE_SIZE, DEFAULT_PAGE_SIZE)
+	pageSize, err = getHeaderValue[int](c.GetReqHeaders(), HEADERNAME_PAGE_SIZE, config.DEFAULT_PAGE_SIZE)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(NotSupportedValueForPageSizeHdrErrResp)
 	}
 	if pageSize == 0 {
-		pageSize = DEFAULT_PAGE_SIZE
+		pageSize = config.DEFAULT_PAGE_SIZE
 	}
 
 	log.Info("get lits of process by code: ", code)
@@ -154,7 +157,7 @@ func (pc *ProcessController) GetList(c *fiber.Ctx) error {
 
 	if err != nil {
 		log.Error("cannot get processes list by code ", err)
-		if errors.Is(err, ErrProcessNotFound) {
+		if errors.Is(err, engine.ErrProcessNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(ProcessNotFoundErrResp)
 		}
 
@@ -184,11 +187,11 @@ func (pc *ProcessController) Get(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 	code := c.Params("code")
 	log.Infof("get process by code: %s and UUID: %s", code, uuid)
-	process, err := pc.service.Get(c.Context(), code, uuid, DEFAULT_PAGE, DEFAULT_PAGE_SIZE)
+	process, err := pc.service.Get(c.Context(), code, uuid, config.DEFAULT_PAGE, config.DEFAULT_PAGE_SIZE)
 
 	if err != nil {
 		log.Error("cannot get process by UUID ", err)
-		if errors.Is(err, ErrProcessNotFound) {
+		if errors.Is(err, engine.ErrProcessNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(ProcessNotFoundErrResp)
 		}
 
@@ -228,7 +231,7 @@ func (pc *ProcessController) AssignStatus(c *fiber.Ctx) error {
 	err = pc.service.AssignStatus(ctx, code, uuid, status, processStatus.Payload)
 	if err != nil {
 		log.Error("cannot move into new status ", err)
-		if errors.Is(err, ErrProcessNotFound) {
+		if errors.Is(err, engine.ErrProcessNotFound) {
 			return c.Status(fiber.StatusNotFound).JSON(ProcessNotFoundErrResp)
 		}
 		if errors.Is(err, validators.ErrUnknownStatus) {

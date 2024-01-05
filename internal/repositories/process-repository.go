@@ -1,4 +1,4 @@
-package api
+package repositories
 
 import (
 	"context"
@@ -8,11 +8,6 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
-)
-
-const (
-	DEFAULT_PAGE_SIZE = 10
-	DEFAULT_PAGE      = 1
 )
 
 type (

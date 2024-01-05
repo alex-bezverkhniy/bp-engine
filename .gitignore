@@ -2,5 +2,6 @@
 *.db
 
 bp-engine
+bp-engine.out
 __debug_bin
 example-bp-engine.out

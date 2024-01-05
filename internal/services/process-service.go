@@ -1,10 +1,14 @@
-package api
+package services
 
 import (
 	"context"
 
 	"github.com/alex-bezverkhniy/bp-engine/internal/model"
-	"github.com/alex-bezverkhniy/bp-engine/internal/validators"
+	"github.com/alex-bezverkhniy/bp-engine/internal/repositories"
+	"github.com/alex-bezverkhniy/bp-engine/pkg/engine"
+	"github.com/alex-bezverkhniy/bp-engine/pkg/engine/config"
+	"github.com/alex-bezverkhniy/bp-engine/pkg/engine/handlers"
+	"github.com/alex-bezverkhniy/bp-engine/pkg/engine/validators"
 
 	"errors"
 
@@ -19,27 +23,24 @@ type (
 		AssignStatus(ctx context.Context, code string, uuid string, status string, metadata model.Payload) error
 	}
 	ProcessSrvc struct {
-		validator validators.Validator
-		repo      ProcessRepository
+		validator      validators.Validator
+		statusHandlers handlers.StatusHandlers
+		repo           repositories.ProcessRepository
 	}
 )
 
-var (
-	ErrProcessNotFound     error = errors.New("process not found")
-	ErrCannotCreateProcess error = errors.New("cannot create process")
-)
-
-func NewProcessService(repo ProcessRepository, validator validators.Validator) ProcessService {
+func NewProcessService(repo repositories.ProcessRepository, validator validators.Validator, statusHandlers handlers.StatusHandlers) ProcessService {
 	return &ProcessSrvc{
-		validator: validator,
-		repo:      repo,
+		validator:      validator,
+		statusHandlers: statusHandlers,
+		repo:           repo,
 	}
 }
 
 func (s *ProcessSrvc) Submit(ctx context.Context, process *model.ProcessDTO) (string, error) {
 	uuid, err := s.repo.Create(ctx, process.ToEntity())
 	if err != nil {
-		return "", errors.Join(err, ErrCannotCreateProcess)
+		return "", errors.Join(err, engine.ErrCannotCreateProcess)
 	}
 	return uuid, nil
 }
@@ -52,11 +53,11 @@ func (s *ProcessSrvc) Get(ctx context.Context, code string, uuid string, page in
 	// Get by code
 	if len(uuid) == 0 {
 		if page <= 0 {
-			page = DEFAULT_PAGE
+			page = config.DEFAULT_PAGE
 		}
 
 		if pageSize <= 0 {
-			pageSize = DEFAULT_PAGE_SIZE
+			pageSize = config.DEFAULT_PAGE_SIZE
 		}
 		processes, err = s.repo.GetByCode(ctx, code, page, pageSize)
 	} else {
@@ -68,7 +69,7 @@ func (s *ProcessSrvc) Get(ctx context.Context, code string, uuid string, page in
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrProcessNotFound
+			return nil, engine.ErrProcessNotFound
 		}
 
 		return nil, err
@@ -82,7 +83,7 @@ func (s *ProcessSrvc) AssignStatus(ctx context.Context, code string, uuid string
 	process, err := s.repo.GetByUUID(ctx, code, uuid)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return ErrProcessNotFound
+			return engine.ErrProcessNotFound
 		}
 
 		return err
@@ -97,10 +98,12 @@ func (s *ProcessSrvc) AssignStatus(ctx context.Context, code string, uuid string
 		return err
 	}
 
+	// Handle the status changes
+
 	err = s.repo.SetStatus(ctx, code, uuid, status, datatypes.JSON(payload.ToBytes()))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return ErrProcessNotFound
+			return engine.ErrProcessNotFound
 		}
 		return err
 	}

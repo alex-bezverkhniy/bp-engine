@@ -7,9 +7,11 @@ import (
 	"path/filepath"
 
 	"github.com/alex-bezverkhniy/bp-engine/internal/api"
-	"github.com/alex-bezverkhniy/bp-engine/internal/config"
 	"github.com/alex-bezverkhniy/bp-engine/internal/model"
-	"github.com/alex-bezverkhniy/bp-engine/internal/validators"
+	"github.com/alex-bezverkhniy/bp-engine/internal/repositories"
+	"github.com/alex-bezverkhniy/bp-engine/internal/services"
+	"github.com/alex-bezverkhniy/bp-engine/pkg/engine/config"
+	"github.com/alex-bezverkhniy/bp-engine/pkg/engine/validators"
 
 	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
@@ -175,8 +177,9 @@ func (e *Engine) SetupApi() error {
 		return err
 	}
 
-	processRepository := api.NewProcessRepository(e.db)
-	processService := api.NewProcessService(processRepository, e.validator)
+	processRepository := repositories.NewProcessRepository(e.db)
+	// TODO: init and add handlers
+	processService := services.NewProcessService(processRepository, e.validator, nil)
 	processController := api.NewProcessController(processService)
 
 	api := e.App.Group("/api")

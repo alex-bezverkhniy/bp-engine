@@ -8,6 +8,11 @@ import (
 	"github.com/gofiber/contrib/swagger"
 )
 
+const (
+	DEFAULT_PAGE_SIZE = 10
+	DEFAULT_PAGE      = 1
+)
+
 type (
 	FileReader interface {
 		ReadFile(filePath string) ([]byte, error)
@@ -60,6 +65,15 @@ func (cb *ConfigBuilder) LoadFromFile(fileReader FileReader) (*Config, error) {
 	err = json.Unmarshal(content, &conf)
 	if err != nil {
 		return nil, err
+	}
+
+	// check and set default status type
+	for _, pc := range conf.ProcessConfig {
+		for _, st := range pc.Statuses {
+			if len(st.Type) == 0 {
+				st.Type = GenericStatus
+			}
+		}
 	}
 
 	return &conf, nil
