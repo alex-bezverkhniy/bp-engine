@@ -10,11 +10,20 @@ type (
 
 	ProcessConfigList []ProcessConfig
 
+	StatusConfigType string
+
 	StatusConfig struct {
-		Name   string   `json:"name"`
-		Next   []string `json:"next,omitempty"`
-		Schema string   `json:"schema,omitempty"`
+		Name   string           `json:"name"`
+		Type   StatusConfigType `json:"type,omitempty"`
+		Next   []string         `json:"next,omitempty"`
+		Schema string           `json:"schema,omitempty"`
 	}
+)
+
+const (
+	GenericStatus      StatusConfigType = "generic"
+	NotificationStatus StatusConfigType = "notification"
+	ConfirmationStatus StatusConfigType = "confirmation"
 )
 
 var ErrStatusConfigNotFound = errors.New("status config not found")

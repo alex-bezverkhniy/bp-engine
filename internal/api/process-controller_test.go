@@ -12,7 +12,10 @@ import (
 	"testing"
 
 	"github.com/alex-bezverkhniy/bp-engine/internal/model"
-	"github.com/alex-bezverkhniy/bp-engine/internal/validators"
+	"github.com/alex-bezverkhniy/bp-engine/internal/services"
+	"github.com/alex-bezverkhniy/bp-engine/pkg/engine"
+	"github.com/alex-bezverkhniy/bp-engine/pkg/engine/config"
+	"github.com/alex-bezverkhniy/bp-engine/pkg/engine/validators"
 
 	fiber "github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -45,7 +48,7 @@ func TestSubmit(t *testing.T) {
 				},
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
+				service := services.ProcessSrvcMock{}
 				service.On("Submit", mock.Anything, &args.reqPayload).
 					Return(defaultUuid, nil)
 				return NewProcessController(&service)
@@ -64,7 +67,7 @@ func TestSubmit(t *testing.T) {
 				},
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
+				service := services.ProcessSrvcMock{}
 				service.On("Submit", mock.Anything, &args.reqPayload).
 					Return("", errors.New("OMG error"))
 				return NewProcessController(&service)
@@ -83,7 +86,7 @@ func TestSubmit(t *testing.T) {
 				},
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
+				service := services.ProcessSrvcMock{}
 				service.On("Submit", mock.Anything, &args.reqPayload).
 					Return(defaultUuid, nil)
 				return NewProcessController(&service)
@@ -171,9 +174,9 @@ func TestGetList(t *testing.T) {
 				pageSize: "5",
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
-				service.On("Get", mock.Anything, args.code, "", DEFAULT_PAGE, 5).
-					Return(nil, ErrProcessNotFound)
+				service := services.ProcessSrvcMock{}
+				service.On("Get", mock.Anything, args.code, "", config.DEFAULT_PAGE, 5).
+					Return(nil, engine.ErrProcessNotFound)
 				return NewProcessController(&service)
 			},
 			wantCode: http.StatusBadRequest,
@@ -187,9 +190,9 @@ func TestGetList(t *testing.T) {
 				pageSize: "abc",
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
-				service.On("Get", mock.Anything, args.code, "", DEFAULT_PAGE, DEFAULT_PAGE_SIZE).
-					Return(nil, ErrProcessNotFound)
+				service := services.ProcessSrvcMock{}
+				service.On("Get", mock.Anything, args.code, "", config.DEFAULT_PAGE, config.DEFAULT_PAGE_SIZE).
+					Return(nil, engine.ErrProcessNotFound)
 				return NewProcessController(&service)
 			},
 			wantCode: http.StatusBadRequest,
@@ -203,9 +206,9 @@ func TestGetList(t *testing.T) {
 				pageSize: "0",
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
-				service.On("Get", mock.Anything, args.code, "", DEFAULT_PAGE, DEFAULT_PAGE_SIZE).
-					Return(nil, ErrProcessNotFound)
+				service := services.ProcessSrvcMock{}
+				service.On("Get", mock.Anything, args.code, "", config.DEFAULT_PAGE, config.DEFAULT_PAGE_SIZE).
+					Return(nil, engine.ErrProcessNotFound)
 				return NewProcessController(&service)
 			},
 			wantCode: http.StatusNotFound,
@@ -219,8 +222,8 @@ func TestGetList(t *testing.T) {
 				pageSize: "0",
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
-				service.On("Get", mock.Anything, args.code, "", DEFAULT_PAGE, DEFAULT_PAGE_SIZE).
+				service := services.ProcessSrvcMock{}
+				service.On("Get", mock.Anything, args.code, "", config.DEFAULT_PAGE, config.DEFAULT_PAGE_SIZE).
 					Return(nil, errors.New("OMG error"))
 				return NewProcessController(&service)
 			},
@@ -235,7 +238,7 @@ func TestGetList(t *testing.T) {
 				pageSize: "5",
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
+				service := services.ProcessSrvcMock{}
 				service.On("Get", mock.Anything, args.code, "", 1, 5).
 					Return(model.ProcessListDTO{
 						{
@@ -265,8 +268,8 @@ func TestGetList(t *testing.T) {
 				pageSize: "0",
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
-				service.On("Get", mock.Anything, args.code, "", DEFAULT_PAGE, DEFAULT_PAGE_SIZE).
+				service := services.ProcessSrvcMock{}
+				service.On("Get", mock.Anything, args.code, "", config.DEFAULT_PAGE, config.DEFAULT_PAGE_SIZE).
 					Return(model.ProcessListDTO{
 						{
 							Code: "test",
@@ -277,8 +280,8 @@ func TestGetList(t *testing.T) {
 			},
 			wantCode: http.StatusOK,
 			wantResp: PaginatedResponse{
-				Page:     DEFAULT_PAGE,
-				PageSize: DEFAULT_PAGE_SIZE,
+				Page:     config.DEFAULT_PAGE,
+				PageSize: config.DEFAULT_PAGE_SIZE,
 				Data: model.ProcessListDTO{
 					{
 						Code: "test",
@@ -353,9 +356,9 @@ func TestGet(t *testing.T) {
 				uuid: defaultUuid,
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
-				service.On("Get", mock.Anything, args.code, args.uuid, DEFAULT_PAGE, DEFAULT_PAGE_SIZE).
-					Return(nil, ErrProcessNotFound)
+				service := services.ProcessSrvcMock{}
+				service.On("Get", mock.Anything, args.code, args.uuid, config.DEFAULT_PAGE, config.DEFAULT_PAGE_SIZE).
+					Return(nil, engine.ErrProcessNotFound)
 				return NewProcessController(&service)
 			},
 			wantCode: http.StatusNotFound,
@@ -368,8 +371,8 @@ func TestGet(t *testing.T) {
 				uuid: defaultUuid,
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
-				service.On("Get", mock.Anything, args.code, args.uuid, DEFAULT_PAGE, DEFAULT_PAGE_SIZE).
+				service := services.ProcessSrvcMock{}
+				service.On("Get", mock.Anything, args.code, args.uuid, config.DEFAULT_PAGE, config.DEFAULT_PAGE_SIZE).
 					Return(nil, errors.New("odd error"))
 				return NewProcessController(&service)
 			},
@@ -383,8 +386,8 @@ func TestGet(t *testing.T) {
 				uuid: defaultUuid,
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
-				service.On("Get", mock.Anything, args.code, args.uuid, DEFAULT_PAGE, DEFAULT_PAGE_SIZE).
+				service := services.ProcessSrvcMock{}
+				service.On("Get", mock.Anything, args.code, args.uuid, config.DEFAULT_PAGE, config.DEFAULT_PAGE_SIZE).
 					Return(model.ProcessListDTO{
 						{
 							Code: "test",
@@ -472,7 +475,7 @@ func TestAssignStatus(t *testing.T) {
 			},
 			simulateBadRequest: true,
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
+				service := services.ProcessSrvcMock{}
 				service.On("AssignStatus", mock.Anything,
 					args.code,
 					args.uuid,
@@ -497,7 +500,7 @@ func TestAssignStatus(t *testing.T) {
 				},
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
+				service := services.ProcessSrvcMock{}
 				service.On("AssignStatus", mock.Anything,
 					args.code,
 					args.uuid,
@@ -522,7 +525,7 @@ func TestAssignStatus(t *testing.T) {
 				},
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
+				service := services.ProcessSrvcMock{}
 				service.On("AssignStatus", mock.Anything,
 					args.code,
 					args.uuid,
@@ -547,13 +550,13 @@ func TestAssignStatus(t *testing.T) {
 				},
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
+				service := services.ProcessSrvcMock{}
 				service.On("AssignStatus", mock.Anything,
 					args.code,
 					args.uuid,
 					args.status,
 					args.reqPayload.Payload).
-					Return(ErrProcessNotFound)
+					Return(engine.ErrProcessNotFound)
 				return NewProcessController(&service)
 			},
 			wantCode: http.StatusNotFound,
@@ -572,7 +575,7 @@ func TestAssignStatus(t *testing.T) {
 				},
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
+				service := services.ProcessSrvcMock{}
 				service.On("AssignStatus", mock.Anything,
 					args.code,
 					args.uuid,
@@ -597,7 +600,7 @@ func TestAssignStatus(t *testing.T) {
 				},
 			},
 			mockFunc: func(args args) *ProcessController {
-				service := ProcessSrvcMock{}
+				service := services.ProcessSrvcMock{}
 				service.On("AssignStatus", mock.Anything,
 					args.code,
 					args.uuid,
@@ -678,7 +681,7 @@ func Test_getHeaderValue(t *testing.T) {
 			name: "success",
 			args: args{
 				headerKey: HEADERNAME_PAGE,
-				defVal:    strconv.Itoa(DEFAULT_PAGE),
+				defVal:    strconv.Itoa(config.DEFAULT_PAGE),
 			},
 			headers: map[string][]string{HEADERNAME_PAGE: {"11"}},
 			wantVal: "11",
@@ -687,7 +690,7 @@ func Test_getHeaderValue(t *testing.T) {
 			name: "success - default val",
 			args: args{
 				headerKey: HEADERNAME_PAGE,
-				defVal:    strconv.Itoa(DEFAULT_PAGE),
+				defVal:    strconv.Itoa(config.DEFAULT_PAGE),
 			},
 			wantVal: "1",
 		},
@@ -695,7 +698,7 @@ func Test_getHeaderValue(t *testing.T) {
 			name: "success - default val - int",
 			args: args{
 				headerKey: HEADERNAME_PAGE,
-				defVal:    DEFAULT_PAGE,
+				defVal:    config.DEFAULT_PAGE,
 			},
 			wantVal: 1,
 		},

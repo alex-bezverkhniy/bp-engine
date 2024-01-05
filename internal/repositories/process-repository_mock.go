@@ -1,4 +1,4 @@
-package api
+package repositories
 
 import (
 	"context"

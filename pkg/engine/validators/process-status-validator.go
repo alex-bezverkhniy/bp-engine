@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/alex-bezverkhniy/bp-engine/internal/config"
 	"github.com/alex-bezverkhniy/bp-engine/internal/model"
+	"github.com/alex-bezverkhniy/bp-engine/pkg/engine/config"
 
 	"github.com/santhosh-tekuri/jsonschema/v5"
 )
